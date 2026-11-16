@@ -42,8 +42,28 @@ jobs:
       - name: Build FOSS APKs
         run: bash ./gradlew :core:domain:testFossDebugUnitTest :core:data:testFossDebugUnitTest :feature:maze-generation:testFossDebugUnitTest :app:assembleFossRelease --stacktrace
 
+      - name: Summarize unit tests
+        run: |
+          python3 - <<'PYTEST'
+          from pathlib import Path
+          import os
+          import xml.etree.ElementTree as ET
+          summary = []
+          for module in ['core/domain', 'core/data', 'feature/maze-generation']:
+              suites = [ET.parse(p).getroot() for p in Path(module, 'build/test-results/testFossDebugUnitTest').glob('TEST-*.xml')]
+              tests = sum(int(s.get('tests', 0)) for s in suites)
+              failures = sum(int(s.get('failures', 0)) + int(s.get('errors', 0)) for s in suites)
+              skipped = sum(int(s.get('skipped', 0)) for s in suites)
+              assert tests > 0 and failures == 0, (module, tests, failures)
+              summary.append(f'- {module}: {tests} tests, {failures} failures, {skipped} skipped')
+          text = '\n'.join(summary) + '\n'
+          print(text)
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as out:
+              out.write('### Unit tests\n' + text)
+          PYTEST
+
       - name: Record runtime dependencies
-        run: bash ./gradlew :app:dependencies --configuration fossReleaseRuntimeClasspath > "$RUNNER_TEMP/ezmaze-dependencies.txt"
+        run: bash ./gradlew :app:dependencies --configuration fossReleaseRuntimeClasspath | tee "$RUNNER_TEMP/ezmaze-dependencies.txt"
 
       - name: Upload maze test results
         if: always()
@@ -77,6 +97,43 @@ jobs:
             $ANDROID_SDK_PATH verify --verbose --print-certs "$apk"
             "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$apk" | grep "package: name='com.iqonli.ezmaze'"
           done
+
+      - name: Enable emulator acceleration
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Verify release startup and SVG saving on Android
+        uses: reactivecircus/android-emulator-runner@v2.38.0
+        with:
+          api-level: 35
+          target: google_apis
+          arch: x86_64
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -no-snapshot -camera-back none
+          script: |
+            adb install -r app/build/outputs/apk/foss/release/*x86_64*.apk
+            adb logcat -c
+            adb shell am start -W -n com.iqonli.ezmaze/.MazeActivity
+            sleep 5
+            adb shell pidof com.iqonli.ezmaze || (adb logcat -d -s AndroidRuntime && exit 1)
+            adb shell uiautomator dump /sdcard/ezmaze-window.xml
+            adb shell cat /sdcard/ezmaze-window.xml | grep 'ezMaze'
+            adb exec-out screencap -p > "$RUNNER_TEMP/ezmaze-startup.png"
+            bash ./gradlew :core:data:connectedFossDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.t8rin.imagetoolbox.core.data.saving.SvgSavingInstrumentedTest --stacktrace
+            bash ./gradlew :feature:maze-generation:connectedFossDebugAndroidTest --stacktrace
+
+      - name: Upload Android verification results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: ezMaze-android-verification
+          path: |
+            ${{ runner.temp }}/ezmaze-startup.png
+            core/data/build/outputs/androidTest-results/**
+            feature/maze-generation/build/outputs/androidTest-results/**
+          if-no-files-found: warn
 
       - name: Prepare individual APKs and build notes
         shell: bash

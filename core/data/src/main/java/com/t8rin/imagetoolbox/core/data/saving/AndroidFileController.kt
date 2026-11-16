@@ -384,13 +384,16 @@ constructor(
                         )
                         val actualFilename = savingFolder.fileUri.filename(context) ?: filename
 
-                        copyMetadata(
-                            initialExif = initialExif,
-                            fileUri = savingFolder.fileUri,
-                            keepOriginalMetadata = shouldKeepMetadata,
-                            originalUri = saveTarget.originalUri.toUri(),
-                            imageSaveTarget = saveTarget as? ImageSaveTarget,
-                        )
+                        // File targets such as SVG must bypass the EXIF writer.
+                        if (newSaveTarget is ImageSaveTarget) {
+                            copyMetadata(
+                                initialExif = initialExif,
+                                fileUri = savingFolder.fileUri,
+                                keepOriginalMetadata = shouldKeepMetadata,
+                                originalUri = saveTarget.originalUri.toUri(),
+                                imageSaveTarget = newSaveTarget,
+                            )
+                        }
 
                         if (
                             settingsState.deleteOriginalsAfterSave &&
