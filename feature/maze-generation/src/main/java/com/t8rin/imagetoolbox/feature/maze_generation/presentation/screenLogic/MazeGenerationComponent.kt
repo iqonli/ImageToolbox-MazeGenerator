@@ -177,7 +177,7 @@ internal constructor(
 
     fun setTopology(value: MazeTopology) = updateRecipe(recipe.copy(topology = value))
 
-    fun setSeedLocked(value: Boolean) {
+    fun updateSeedLocked(value: Boolean) {
         seedLocked = value
     }
 
@@ -199,15 +199,15 @@ internal constructor(
         updatePreview()
     }
 
-    fun setImageFormat(value: ImageFormat) {
+    fun updateImageFormat(value: ImageFormat) {
         change { imageFormat = value }
     }
 
-    fun setQuality(value: Quality) {
+    fun updateQuality(value: Quality) {
         change { quality = value }
     }
 
-    fun setSvg(value: Boolean) {
+    fun updateSvg(value: Boolean) {
         change { svg = value }
     }
 
@@ -286,11 +286,11 @@ internal constructor(
         playing = false
     }
 
-    fun setAnimationSpeed(value: Int) {
+    fun updateAnimationSpeed(value: Int) {
         animationSpeed = value.coerceIn(20, 10000)
     }
 
-    fun setAnimateSolution(value: Boolean) {
+    fun updateAnimateSolution(value: Boolean) {
         pauseAnimation()
         animateSolution = value
         seekAnimation(0f)

@@ -89,7 +89,7 @@ internal fun MazeControls(component: MazeGenerationComponent) {
             onValueChange = { change(p.copy(seed = it.roundToInt())) },
             enabled = !component.seedLocked,
         )
-        Toggle(R.string.maze_lock_seed, component.seedLocked, component::setSeedLocked)
+        Toggle(R.string.maze_lock_seed, component.seedLocked, component::updateSeedLocked)
         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Action(R.string.maze_generate, component::newMaze)
             Action(R.string.maze_copy_seed) { Clipboard.copy(p.seed.toString()) }
@@ -277,13 +277,13 @@ internal fun MazeControls(component: MazeGenerationComponent) {
         Toggle(
             R.string.maze_animate_solution,
             component.animateSolution,
-            component::setAnimateSolution,
+            component::updateAnimateSolution,
         )
         NumberSlider(
             R.string.maze_animation_speed,
             component.animationSpeed,
             20f..10000f,
-            component::setAnimationSpeed,
+            component::updateAnimationSpeed,
         )
         FloatSlider(
             R.string.maze_animation_progress,

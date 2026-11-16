@@ -188,13 +188,13 @@ fun MazeGenerationContent(component: MazeGenerationComponent) {
                 PreferenceRowSwitch(
                     title = stringResource(R.string.maze_svg_export),
                     checked = component.svg,
-                    onClick = component::setSvg,
+                    onClick = component::updateSvg,
                 )
                 Spacer(Modifier.height(4.dp))
                 if (!component.svg)
                     ImageFormatSelector(
                         value = component.imageFormat,
-                        onValueChange = component::setImageFormat,
+                        onValueChange = component::updateImageFormat,
                         forceEnabled = true,
                         quality = component.quality,
                     )
@@ -202,7 +202,7 @@ fun MazeGenerationContent(component: MazeGenerationComponent) {
                     QualitySelector(
                         quality = component.quality,
                         imageFormat = component.imageFormat,
-                        onQualityChange = component::setQuality,
+                        onQualityChange = component::updateQuality,
                     )
             }
         },
