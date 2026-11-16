@@ -2,6 +2,9 @@ name: Android CI FOSS
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - feature/maze-generator
 
 jobs:
   build:
