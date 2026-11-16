@@ -18,13 +18,11 @@
 package com.t8rin.imagetoolbox.feature.maze_generation.presentation
 
 import android.net.Uri
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
@@ -37,7 +35,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -67,11 +64,9 @@ import com.t8rin.imagetoolbox.core.ui.widget.enhanced.EnhancedLoadingIndicator
 import com.t8rin.imagetoolbox.core.ui.widget.image.Picture
 import com.t8rin.imagetoolbox.core.ui.widget.modifier.container
 import com.t8rin.imagetoolbox.core.ui.widget.other.TopAppBarEmoji
-import com.t8rin.imagetoolbox.core.ui.widget.preferences.PreferenceRowSwitch
 import com.t8rin.imagetoolbox.core.ui.widget.sheets.ProcessImagesPreferenceSheet
 import com.t8rin.imagetoolbox.core.ui.widget.sheets.ZoomModalSheet
 import com.t8rin.imagetoolbox.core.ui.widget.text.marquee
-import com.t8rin.imagetoolbox.feature.maze_generation.domain.MazeEntrance
 import com.t8rin.imagetoolbox.feature.maze_generation.presentation.components.MazeControls
 import com.t8rin.imagetoolbox.feature.maze_generation.presentation.screenLogic.MazeGenerationComponent
 
@@ -99,7 +94,6 @@ fun MazeGenerationContent(component: MazeGenerationComponent) {
     }
 
     var showZoom by rememberSaveable { mutableStateOf(false) }
-    var selectStart by rememberSaveable { mutableStateOf(true) }
     var showExitDialog by rememberSaveable { mutableStateOf(false) }
 
     AdaptiveLayoutScreen(
@@ -139,40 +133,18 @@ fun MazeGenerationContent(component: MazeGenerationComponent) {
         },
         topAppBarPersistentActions = { TopAppBarEmoji() },
         imagePreview = {
-            Column {
-                if (component.recipe.entrance == MazeEntrance.Manual) {
-                    PreferenceRowSwitch(
-                        modifier = Modifier.fillMaxWidth(),
-                        title = stringResource(R.string.maze_select_start),
-                        checked = selectStart,
-                        onClick = { selectStart = it },
-                    )
-                }
-                Box(contentAlignment = Alignment.Center) {
-                    Picture(
-                        model =
-                            if (component.svg) component.previewVector else component.previewBitmap,
-                        contentDescription = stringResource(R.string.maze_preview),
-                        crossfadeEnabled = false,
-                        modifier =
-                            Modifier.container(MaterialTheme.shapes.medium)
-                                .aspectRatio(component.outputSize.safeAspectRatio.animate())
-                                .pointerInput(component.recipe, selectStart) {
-                                    detectTapGestures { position ->
-                                        if (component.recipe.entrance == MazeEntrance.Manual) {
-                                            component.selectCell(
-                                                position.x / size.width,
-                                                position.y / size.height,
-                                                selectStart,
-                                            )
-                                        }
-                                    }
-                                },
-                        shape = MaterialTheme.shapes.medium,
-                        contentScale = ContentScale.FillBounds,
-                    )
-                    if (component.isImageLoading) EnhancedLoadingIndicator()
-                }
+            Box(contentAlignment = Alignment.Center) {
+                Picture(
+                    model = if (component.svg) component.previewVector else component.previewBitmap,
+                    contentDescription = stringResource(R.string.maze_preview),
+                    crossfadeEnabled = false,
+                    modifier =
+                        Modifier.container(MaterialTheme.shapes.medium)
+                            .aspectRatio(component.outputSize.safeAspectRatio.animate()),
+                    shape = MaterialTheme.shapes.medium,
+                    contentScale = ContentScale.FillBounds,
+                )
+                if (component.isImageLoading) EnhancedLoadingIndicator()
             }
         },
         controls = {

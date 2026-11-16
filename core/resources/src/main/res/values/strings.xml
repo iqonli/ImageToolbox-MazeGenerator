@@ -8211,7 +8211,7 @@
     <string name="maze_entrance_opposite">Opposite boundary cells</string>
     <string name="maze_entrance_random">Random boundary cells</string>
     <string name="maze_entrance_center">Center to boundary</string>
-    <string name="maze_entrance_manual">Manual selection</string>
+    <string name="maze_entrance_manual">Custom</string>
     <string name="maze_direction_north_east">North east</string>
     <string name="maze_direction_north_west">North west</string>
     <string name="maze_direction_south_east">South east</string>
@@ -8232,7 +8232,6 @@
     <string name="maze_rows">Rows</string>
     <string name="maze_columns">Columns</string>
     <string name="maze_braid" formatted="false">Remove dead ends</string>
-    <string name="maze_perfect">Perfect maze</string>
     <string name="maze_mask">Mask shape</string>
     <string name="maze_threshold">Mask luminance threshold</string>
     <string name="maze_invert_mask">Invert image mask</string>
@@ -8253,8 +8252,6 @@
     <string name="maze_entrance">Endpoint selection</string>
     <string name="maze_start_cell">Start cell index</string>
     <string name="maze_end_cell">End cell index</string>
-    <string name="maze_tap_hint">Choose the endpoint below the preview, then tap a cell. Cell indices start at zero.</string>
-    <string name="maze_select_start">Select start (off: select end)</string>
     <string name="maze_open_entrances">Open boundary entrances</string>
     <string name="maze_show_solution">Draw shortest solution path</string>
     <string name="maze_show_markers">Show endpoint markers</string>

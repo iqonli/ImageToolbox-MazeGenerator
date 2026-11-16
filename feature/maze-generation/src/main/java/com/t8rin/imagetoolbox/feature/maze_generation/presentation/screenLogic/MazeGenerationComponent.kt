@@ -32,9 +32,7 @@ import com.t8rin.imagetoolbox.core.domain.image.model.ImageInfo
 import com.t8rin.imagetoolbox.core.domain.image.model.Quality
 import com.t8rin.imagetoolbox.core.domain.model.ColorModel
 import com.t8rin.imagetoolbox.core.domain.model.IntegerSize
-import com.t8rin.imagetoolbox.core.domain.model.MimeType
 import com.t8rin.imagetoolbox.core.domain.saving.FileController
-import com.t8rin.imagetoolbox.core.domain.saving.model.FileSaveTarget
 import com.t8rin.imagetoolbox.core.domain.saving.model.ImageSaveTarget
 import com.t8rin.imagetoolbox.core.domain.saving.model.SaveResult
 import com.t8rin.imagetoolbox.core.settings.domain.SettingsManager
@@ -42,6 +40,7 @@ import com.t8rin.imagetoolbox.core.ui.utils.BaseHistoryComponent
 import com.t8rin.imagetoolbox.core.ui.utils.helper.AppToastHost
 import com.t8rin.imagetoolbox.core.ui.utils.navigation.Screen
 import com.t8rin.imagetoolbox.feature.maze_generation.data.MazeRecipeStore
+import com.t8rin.imagetoolbox.feature.maze_generation.data.MazeSvgFileFactory
 import com.t8rin.imagetoolbox.feature.maze_generation.domain.*
 import com.t8rin.imagetoolbox.feature.maze_generation.rendering.*
 import dagger.assisted.Assisted
@@ -67,6 +66,7 @@ internal constructor(
     private val imageCompressor: ImageCompressor<Bitmap>,
     private val settingsManager: SettingsManager,
     private val store: MazeRecipeStore,
+    private val svgFileFactory: MazeSvgFileFactory,
 ) :
     BaseHistoryComponent<MazeGenerationComponent.HistorySnapshot>(
         dispatchersHolder,
@@ -110,7 +110,6 @@ internal constructor(
     private var savingJob: Job? = null
     private var persistenceJob: Job? = null
     private var cached: Pair<MazeRecipe, MazeResult>? = null
-    private var currentSolution: MazeSolution? = null
 
     init {
         resetHistory()
@@ -249,7 +248,6 @@ internal constructor(
                     ensureActive()
                     if (ticket == revision) {
                         cached = input.graphKey() to result
-                        currentSolution = solution
                         previewBitmap = image as? Bitmap
                         previewVector = image as? MazeSvgPainter
                         statistics = MazeSolver.statistics(result, solution)
@@ -284,29 +282,6 @@ internal constructor(
         revision++
         generationJob?.cancel()
         _isImageLoading.value = false
-    }
-
-    /** Manual indices can be set accessibly with controls; tapping selects the nearest cell. */
-    fun selectCell(x: Float, y: Float, start: Boolean) {
-        val result = cached?.takeIf { it.first == recipe.graphKey() }?.second ?: return
-        val solution = currentSolution ?: return
-        val scene = MazeSceneBuilder.build(result, solution, recipe)
-        val scale = minOf(outputSize.width / scene.width, outputSize.height / scene.height)
-        val px =
-            (x * outputSize.width - (outputSize.width - scene.width * scale) / 2) / scale +
-                scene.minX
-        val py =
-            (y * outputSize.height - (outputSize.height - scene.height * scale) / 2) / scale +
-                scene.minY
-        val cell =
-            result.graph.cells.indices.minBy { i ->
-                val c = result.graph.cells[i].center
-                (c.x - px) * (c.x - px) + (c.y - py) * (c.y - py)
-            }
-        updateRecipe(
-            if (start) recipe.copy(entrance = MazeEntrance.Manual, startCell = cell)
-            else recipe.copy(entrance = MazeEntrance.Manual, endCell = cell)
-        )
     }
 
     private data class Export(
@@ -357,7 +332,7 @@ internal constructor(
                             )
                             .toByteArray()
                     }
-                FileSaveTarget("", "maze_${e.recipe.seed}", data, MimeType.Svg, "svg")
+                svgFileFactory.create(data = data, width = e.size.width, height = e.size.height)
             } else {
                 val bitmap =
                     withContext(defaultDispatcher) {
@@ -419,7 +394,13 @@ internal constructor(
                             )
                             .toByteArray()
                     }
-                shareProvider.cacheByteArray(bytes, "maze_${e.recipe.seed}.svg")
+                val target =
+                    svgFileFactory.create(
+                        data = bytes,
+                        width = e.size.width,
+                        height = e.size.height,
+                    )
+                shareProvider.cacheByteArray(target.data, target.filename)
             } else {
                 val bitmap =
                     withContext(defaultDispatcher) {

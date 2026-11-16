@@ -36,6 +36,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -53,6 +54,7 @@ import com.t8rin.imagetoolbox.core.ui.widget.enhanced.EnhancedButton
 import com.t8rin.imagetoolbox.core.ui.widget.enhanced.EnhancedSliderItem
 import com.t8rin.imagetoolbox.core.ui.widget.modifier.ShapeDefaults
 import com.t8rin.imagetoolbox.core.ui.widget.modifier.container
+import com.t8rin.imagetoolbox.core.ui.widget.other.ExpandableItem
 import com.t8rin.imagetoolbox.core.ui.widget.preferences.PreferenceRowSwitch
 import com.t8rin.imagetoolbox.core.ui.widget.text.TitleItem
 import com.t8rin.imagetoolbox.feature.maze_generation.domain.MazeAlgorithm
@@ -70,7 +72,8 @@ internal fun MazeControls(component: MazeGenerationComponent) {
     val p = component.recipe
     val change = component::updateRecipe
     Column(
-        modifier = Modifier.container(shape = ShapeDefaults.large, resultPadding = 12.dp),
+        modifier =
+            Modifier.fillMaxWidth().container(shape = ShapeDefaults.large, resultPadding = 12.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         TitleItem(
@@ -85,7 +88,8 @@ internal fun MazeControls(component: MazeGenerationComponent) {
                     MazeTopology.entries,
                     R.string.maze_topology,
                     { it.title },
-                    component::setTopology,
+                    shape = ShapeDefaults.top,
+                    onChange = component::setTopology,
                 )
                 val algorithms = MazeAlgorithm.entries.filter { it.supports(p.topology) }
                 Column(
@@ -135,9 +139,6 @@ internal fun MazeControls(component: MazeGenerationComponent) {
                 )
                 NumberSlider(R.string.maze_braid, p.braid, 0f..100f, suffix = "%") {
                     change(p.copy(braid = it))
-                }
-                Toggle(R.string.maze_perfect, p.braid == 0) {
-                    change(p.copy(braid = if (it) 0 else 100))
                 }
                 if (p.topology == MazeTopology.Mask) {
                     Choice(
@@ -259,10 +260,6 @@ internal fun MazeControls(component: MazeGenerationComponent) {
                     ) {
                         change(p.copy(endCell = it))
                     }
-                    Text(
-                        stringResource(R.string.maze_tap_hint),
-                        style = MaterialTheme.typography.bodySmall,
-                    )
                 }
                 Toggle(R.string.maze_open_entrances, p.openEntrances) {
                     change(p.copy(openEntrances = it))
@@ -280,11 +277,15 @@ internal fun MazeControls(component: MazeGenerationComponent) {
                 FloatSlider(R.string.maze_wall_width, p.style.wallWidth, 0.01f..0.5f) {
                     change(p.copy(style = p.style.copy(wallWidth = it)))
                 }
-                FloatSlider(R.string.maze_solution_width, p.style.solutionWidth, 0.02f..0.8f) {
-                    change(p.copy(style = p.style.copy(solutionWidth = it)))
+                if (p.style.showSolution) {
+                    FloatSlider(R.string.maze_solution_width, p.style.solutionWidth, 0.02f..0.8f) {
+                        change(p.copy(style = p.style.copy(solutionWidth = it)))
+                    }
                 }
-                FloatSlider(R.string.maze_marker_size, p.style.markerSize, 0.05f..0.6f) {
-                    change(p.copy(style = p.style.copy(markerSize = it)))
+                if (p.style.showMarkers) {
+                    FloatSlider(R.string.maze_marker_size, p.style.markerSize, 0.05f..0.6f) {
+                        change(p.copy(style = p.style.copy(markerSize = it)))
+                    }
                 }
                 FloatSlider(R.string.maze_margin, p.style.margin, 0.1f..5f) {
                     change(p.copy(style = p.style.copy(margin = it)))
@@ -295,56 +296,84 @@ internal fun MazeControls(component: MazeGenerationComponent) {
                 MazeColor(R.string.maze_wall_color, p.style.wallColor) {
                     change(p.copy(style = p.style.copy(wallColor = it)))
                 }
-                MazeColor(R.string.maze_background_color, p.style.backgroundColor) {
+                MazeColor(
+                    R.string.maze_background_color,
+                    p.style.backgroundColor,
+                    shape =
+                        if (!p.style.showSolution && !p.style.showMarkers) ShapeDefaults.bottom
+                        else ShapeDefaults.center,
+                ) {
                     change(p.copy(style = p.style.copy(backgroundColor = it, transparent = false)))
                 }
-                MazeColor(R.string.maze_solution_color, p.style.solutionColor) {
-                    change(p.copy(style = p.style.copy(solutionColor = it)))
+                if (p.style.showSolution) {
+                    MazeColor(
+                        R.string.maze_solution_color,
+                        p.style.solutionColor,
+                        shape =
+                            if (!p.style.showMarkers) ShapeDefaults.bottom else ShapeDefaults.center,
+                    ) {
+                        change(p.copy(style = p.style.copy(solutionColor = it)))
+                    }
                 }
-                MazeColor(R.string.maze_start_color, p.style.startColor) {
-                    change(p.copy(style = p.style.copy(startColor = it)))
+                if (p.style.showMarkers) {
+                    MazeColor(R.string.maze_start_color, p.style.startColor) {
+                        change(p.copy(style = p.style.copy(startColor = it)))
+                    }
                 }
-                MazeColor(R.string.maze_end_color, p.style.endColor) {
-                    change(p.copy(style = p.style.copy(endColor = it)))
+                if (p.style.showMarkers) {
+                    MazeColor(
+                        R.string.maze_end_color,
+                        p.style.endColor,
+                        shape = ShapeDefaults.bottom,
+                    ) {
+                        change(p.copy(style = p.style.copy(endColor = it)))
+                    }
                 }
             }
         }
     }
     component.statistics?.let { s ->
-        Column(
-            modifier = Modifier.container(shape = ShapeDefaults.large, resultPadding = 12.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            TitleItem(
-                text = stringResource(R.string.maze_statistics),
-                icon = Icons.Rounded.BarChart,
-            )
-            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                androidx.compose.runtime.CompositionLocalProvider(
-                    androidx.compose.material3.LocalTextStyle provides
-                        MaterialTheme.typography.bodyLarge
+        ExpandableItem(
+            modifier = Modifier.fillMaxWidth(),
+            initialState = false,
+            visibleContent = {
+                TitleItem(
+                    text = stringResource(R.string.maze_statistics),
+                    icon = Icons.Rounded.BarChart,
+                    modifier = Modifier.padding(8.dp),
+                )
+            },
+            expandableContent = {
+                Column(
+                    modifier = Modifier.fillMaxWidth().padding(12.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
                 ) {
-                    Text(
-                        stringResource(
-                            R.string.maze_extra_statistics,
-                            s.passages - s.cells + 1,
-                            s.deadEnds * 100 / s.cells,
+                    androidx.compose.runtime.CompositionLocalProvider(
+                        androidx.compose.material3.LocalTextStyle provides
+                            MaterialTheme.typography.bodyLarge
+                    ) {
+                        Text(
+                            stringResource(
+                                R.string.maze_extra_statistics,
+                                s.passages - s.cells + 1,
+                                s.deadEnds * 100 / s.cells,
+                            )
                         )
-                    )
-                    Text(
-                        stringResource(
-                            R.string.maze_statistics_values,
-                            s.cells,
-                            s.passages,
-                            s.deadEnds,
-                            s.junctions,
-                            s.solutionLength,
-                            component.elapsedMillis,
+                        Text(
+                            stringResource(
+                                R.string.maze_statistics_values,
+                                s.cells,
+                                s.passages,
+                                s.deadEnds,
+                                s.junctions,
+                                s.solutionLength,
+                                component.elapsedMillis,
+                            )
                         )
-                    )
+                    }
                 }
-            }
-        }
+            },
+        )
     }
 }
 
@@ -366,6 +395,7 @@ private fun <T : Any> Choice(
     entries: List<T>,
     title: Int,
     label: (T) -> Int,
+    shape: Shape = ShapeDefaults.center,
     onChange: (T) -> Unit,
 ) {
     DataSelector(
@@ -376,7 +406,7 @@ private fun <T : Any> Choice(
         itemContentText = { stringResource(label(it)) },
         onValueChange = onChange,
         spanCount = 2,
-        shape = ShapeDefaults.center,
+        shape = shape,
     )
 }
 
@@ -434,9 +464,14 @@ private fun Action(title: Int, onClick: () -> Unit) {
 }
 
 @Composable
-private fun MazeColor(title: Int, value: Int, onChange: (Int) -> Unit) {
+private fun MazeColor(
+    title: Int,
+    value: Int,
+    shape: Shape = ShapeDefaults.center,
+    onChange: (Int) -> Unit,
+) {
     ColorRowSelector(
-        modifier = Modifier.fillMaxWidth().container(shape = ShapeDefaults.center),
+        modifier = Modifier.fillMaxWidth().container(shape = shape),
         value = Color(value),
         onValueChange = { onChange(it.toArgb()) },
         title = stringResource(title),

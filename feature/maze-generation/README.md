@@ -5,10 +5,16 @@ A native Image Toolbox generator with seven grids and sixteen algorithms. Contro
 `PreferenceRowSwitch`, color selector and format/quality controls as the existing generators.
 Algorithm descriptions and the supported-algorithm count live inside the algorithm selector.
 Endpoint and appearance controls continue in the same parameter panel without extra headings.
+Custom endpoints use only the start/end cell sliders; the preview does not handle endpoint taps.
+Solution and marker style controls follow their visibility toggles. The outside controls use
+the host top/bottom shapes, and statistics are full-width and initially collapsed.
 
 SVG is the first choice in the image-format selector. In SVG mode, the exported SVG document is
 parsed by AndroidSVG and retained as a vector `Picture` through `MazeSvgPainter`; neither the
 preview nor the host zoom sheet enlarges a bitmap. Raster and SVG exports share `MazeScene`.
+SVG save and share-cache names use the host `FilenameCreator`, including prefix/suffix,
+timestamp, random and checksum naming settings, with the `.svg` extension. The actual SVG
+bytes are supplied for checksum naming, matching the existing SVG tool's filename contract.
 The AndroidSVG dependency follows the root project's existing AndroidSVG substitution.
 
 The background color's alpha controls transparency. Previous settings with the separate
