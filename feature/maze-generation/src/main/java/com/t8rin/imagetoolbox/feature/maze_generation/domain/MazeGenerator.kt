@@ -23,13 +23,13 @@ import kotlinx.coroutines.ensureActive
 
 /** Algorithms operate only on edge indices; geometry never changes their adjacency contract. */
 object MazeGenerator {
-    suspend fun generate(recipe: MazeRecipe): MazeResult {
+    suspend fun generate(recipe: MazeRecipe, captureEvents: Boolean = false): MazeResult {
         val time = TimeSource.Monotonic.markNow()
         val graph = MazeTopologyBuilder.build(recipe)
         require(recipe.algorithm != MazeAlgorithm.ReverseDelete || graph.cells.size <= 1600) {
             "Reverse Delete is limited to 1600 cells"
         }
-        val worker = Worker(graph, recipe)
+        val worker = Worker(graph, recipe, captureEvents)
         worker.generate()
         worker.braid()
         return MazeResult(
@@ -41,7 +41,7 @@ object MazeGenerator {
         )
     }
 
-    private class Worker(val g: MazeGraph, val p: MazeRecipe) {
+    private class Worker(val g: MazeGraph, val p: MazeRecipe, val captureEvents: Boolean) {
         val random = MazeRandom(p.seed)
         val links = BooleanArray(g.edges.size)
         var initial = BooleanArray(g.edges.size)
@@ -53,7 +53,7 @@ object MazeGenerator {
         fun set(e: Int, open: Boolean = true) {
             if (links[e] != open) {
                 links[e] = open
-                events.add(if (open) e + 1 else -e - 1)
+                if (captureEvents) events.add(if (open) e + 1 else -e - 1)
             }
         }
 

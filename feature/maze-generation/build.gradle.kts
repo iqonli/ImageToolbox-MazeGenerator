@@ -26,4 +26,5 @@ android.namespace = "com.t8rin.imagetoolbox.feature.maze_generation"
 
 dependencies {
     implementation(libs.kotlinx.serialization.json)
+    implementation(libs.androidSvg)
 }

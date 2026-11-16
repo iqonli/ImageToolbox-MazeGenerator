@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
@@ -122,7 +123,10 @@ fun MazeGenerationContent(component: MazeGenerationComponent) {
                 )
             }
             shareButton()
-            ZoomButton(onClick = { showZoom = true }, visible = component.previewBitmap != null)
+            ZoomButton(
+                onClick = { showZoom = true },
+                visible = component.previewBitmap != null || component.previewVector != null,
+            )
             if (isPortrait) {
                 UndoRedoButtons(
                     canUndo = component.canUndo,
@@ -138,6 +142,7 @@ fun MazeGenerationContent(component: MazeGenerationComponent) {
             Column {
                 if (component.recipe.entrance == MazeEntrance.Manual) {
                     PreferenceRowSwitch(
+                        modifier = Modifier.fillMaxWidth(),
                         title = stringResource(R.string.maze_select_start),
                         checked = selectStart,
                         onClick = { selectStart = it },
@@ -145,7 +150,8 @@ fun MazeGenerationContent(component: MazeGenerationComponent) {
                 }
                 Box(contentAlignment = Alignment.Center) {
                     Picture(
-                        model = component.previewBitmap,
+                        model =
+                            if (component.svg) component.previewVector else component.previewBitmap,
                         contentDescription = stringResource(R.string.maze_preview),
                         crossfadeEnabled = false,
                         modifier =
@@ -180,24 +186,16 @@ fun MazeGenerationContent(component: MazeGenerationComponent) {
                     onWidthChange = component::setWidth,
                     onHeightChange = component::setHeight,
                 )
-                Text(
-                    stringResource(R.string.maze_output_limit),
-                    style = MaterialTheme.typography.bodySmall,
-                )
                 MazeControls(component)
-                PreferenceRowSwitch(
-                    title = stringResource(R.string.maze_svg_export),
-                    checked = component.svg,
-                    onClick = component::updateSvg,
-                )
                 Spacer(Modifier.height(4.dp))
-                if (!component.svg)
-                    ImageFormatSelector(
-                        value = component.imageFormat,
-                        onValueChange = component::updateImageFormat,
-                        forceEnabled = true,
-                        quality = component.quality,
-                    )
+                ImageFormatSelector(
+                    value = if (component.svg) null else component.imageFormat,
+                    onValueChange = component::updateImageFormat,
+                    onAutoClick = { component.updateSvg(true) },
+                    autoText = "SVG",
+                    forceEnabled = true,
+                    quality = component.quality,
+                )
                 if (!component.svg)
                     QualitySelector(
                         quality = component.quality,
@@ -209,7 +207,7 @@ fun MazeGenerationContent(component: MazeGenerationComponent) {
         buttons = { actions ->
             var showFolderSelectionDialog by rememberSaveable { mutableStateOf(false) }
             BottomButtonsBlock(
-                isNoData = false,
+                isNoData = component.outputSize.width <= 0 || component.outputSize.height <= 0,
                 isSecondaryButtonVisible = false,
                 onSecondaryButtonClick = {},
                 onPrimaryButtonClick = { saveBitmap(null) },
@@ -239,7 +237,7 @@ fun MazeGenerationContent(component: MazeGenerationComponent) {
     )
 
     ZoomModalSheet(
-        data = component.previewBitmap,
+        data = if (component.svg) component.previewVector else component.previewBitmap,
         visible = showZoom,
         onDismiss = { showZoom = false },
     )

@@ -8132,36 +8132,26 @@
     <string name="remember_gallery_display_settings_sub">在访问图库和嵌入式选择器之间保存分组和排序选项。</string>
 
     <!-- Maze Generator -->
-    <string name="maze_generation">迷宫生成器</string>
+    <string name="maze_generation">迷宫生成</string>
     <string name="maze_generation_sub">使用不同网格、算法与样式，生成并求解可复现的迷宫</string>
     <string name="search_keywords_maze_generation">迷宫, 生成器, 解谜, 求解, 去死胡同, 随机种子, 网格, 六边形, 圆形, 矢量, SVG</string>
-    <string name="maze_structure">结构</string>
     <string name="maze_topology">网格</string>
     <string name="maze_algorithm">算法</string>
-    <string name="maze_square_algorithms">Binary Tree、Sidewinder、Eller 和 Recursive Division 仅支持方格网格。</string>
     <string name="maze_uniform_hint">均匀生成树采样。大网格上的随机游走可能耗时较长。</string>
     <string name="maze_houston_hint">先运行 Aldous–Broder，再切换到 Wilson。此混合算法不保证均匀生成树采样。</string>
     <string name="maze_reverse_hint">逐条删边并保持连通。每次删除都检查连通性，因此最多支持 1600 个单元。</string>
     <string name="maze_origin_hint">移动有向树的根节点。迭代次数按单元数计算。</string>
-    <string name="maze_algorithm_hint">相同配方及算法版本可复现同一迷宫。去死胡同会在生成完成后添加环路。</string>
     <string name="maze_rings">环数</string>
     <string name="maze_rows">行数</string>
     <string name="maze_columns">列数</string>
-    <string name="maze_lock_seed">锁定种子</string>
-    <string name="maze_generate">生成</string>
-    <string name="maze_copy_seed">复制种子</string>
-    <string name="maze_cancel">取消</string>
-    <string name="maze_braid" formatted="false">去死胡同比例（%）</string>
+    <string name="maze_braid" formatted="false">去死胡同比例</string>
     <string name="maze_perfect">完美迷宫</string>
-    <string name="maze_braid_hint">完美迷宫中任意两个单元之间只有一条路径。去死胡同会添加通道，产生多条可选路径。</string>
     <string name="maze_mask">掩膜形状</string>
     <string name="maze_threshold">掩膜亮度阈值</string>
     <string name="maze_invert_mask">反转图片掩膜</string>
     <string name="maze_load_mask">载入图片掩膜</string>
     <string name="maze_apply_mask">应用掩膜阈值</string>
     <string name="maze_mask_hint">不透明的暗像素作为迷宫单元。仅保留最大连通区域，丢弃孤立区域。图片掩膜会嵌入导出的配方。</string>
-    <string name="maze_algorithm_parameters">算法参数</string>
-    <string name="maze_weights_hint">各选取策略的相对权重。全部为零时选取最新单元。</string>
     <string name="maze_newest">最新单元权重</string>
     <string name="maze_random">随机单元权重</string>
     <string name="maze_oldest">最旧单元权重</string>
@@ -8173,9 +8163,7 @@
     <string name="maze_houston_switch" formatted="false">访问单元达到此比例后切换 Wilson（%）</string>
     <string name="maze_origin_iterations">每单元根节点移动次数</string>
     <string name="maze_division_room">细分叶区域面积（单元）</string>
-    <string name="maze_endpoints">出入口与解答</string>
     <string name="maze_entrance">端点选择</string>
-    <string name="maze_farthest_hint">远距离边界端点通过两次广度优先搜索确定。完美迷宫中得到边界直径；带环迷宫中为近似结果。内部端点仅显示标记，不开外墙。</string>
     <string name="maze_start_cell">起点单元索引</string>
     <string name="maze_end_cell">终点单元索引</string>
     <string name="maze_tap_hint">在预览下方选择要设置的端点，再点击单元。索引从零开始。</string>
@@ -8184,38 +8172,18 @@
     <string name="maze_show_solution">绘制最短通关路线</string>
     <string name="maze_show_markers">显示端点标记</string>
     <string name="maze_heatmap">距离热力图</string>
-    <string name="maze_style">外观</string>
-    <string name="maze_wall_width">墙宽（单元）</string>
-    <string name="maze_solution_width">解答线宽（单元）</string>
-    <string name="maze_marker_size">标记半径（单元）</string>
-    <string name="maze_margin">边距（单元）</string>
+    <string name="maze_wall_width">墙宽</string>
+    <string name="maze_solution_width">解答线宽</string>
+    <string name="maze_marker_size">标记半径</string>
+    <string name="maze_margin">边距</string>
     <string name="maze_cap">线端样式</string>
-    <string name="maze_transparent">透明背景</string>
     <string name="maze_wall_color">墙体颜色</string>
     <string name="maze_background_color">背景颜色</string>
     <string name="maze_solution_color">解答颜色</string>
     <string name="maze_start_color">起点标记颜色</string>
     <string name="maze_end_color">终点标记颜色</string>
-    <string name="maze_animation">动画</string>
-    <string name="maze_animate_solution">播放解答（关闭时播放生成过程）</string>
-    <string name="maze_animation_speed">每秒步数</string>
-    <string name="maze_animation_progress">播放进度</string>
-    <string name="maze_pause">暂停</string>
-    <string name="maze_play">播放</string>
-    <string name="maze_step">单步</string>
-    <string name="maze_restart">重新开始</string>
-    <string name="maze_finish">完成</string>
-    <string name="maze_animation_hint">回放生成过程的边变化或最短解答。导出始终使用完整迷宫。大网格每帧会推进多步。</string>
-    <string name="maze_presets">预设与配方</string>
-    <string name="maze_preset_name">预设名称</string>
-    <string name="maze_save_preset">保存预设</string>
-    <string name="maze_delete_preset">删除</string>
-    <string name="maze_builtin_preset">内置预设 %1$d</string>
-    <string name="maze_import_recipe">导入配方</string>
-    <string name="maze_export_recipe">导出配方</string>
     <string name="maze_statistics">统计</string>
     <string name="maze_statistics_values">单元：%1$d\n通道：%2$d\n死胡同：%3$d\n岔路：%4$d\n解答长度：%5$d 步\n生成耗时：%6$d ms</string>
-    <string name="maze_svg_export">导出为 SVG</string>
     <string name="maze_preview">生成的迷宫预览</string>
     <string name="maze_error">迷宫生成失败</string>
     <string name="maze_close">关闭</string>
@@ -8255,6 +8223,5 @@
     <string name="maze_hint_division">用保留一个开口的长墙分割矩形区域。叶区域使用随机生成树，仍保持唯一路径。</string>
     <string name="maze_hint_blobby">生长出两个连通的不规则区域，两者之间仅保留一条通道，再分别细分。</string>
     <string name="maze_hint_growing_binary">指向根节点的广义变体：每个单元从前一广度优先层随机选择父节点。</string>
-    <string name="maze_output_limit">位图单边最多 8192 像素，总像素最多 3200 万。SVG 放大后仍为矢量。</string>
     <string name="maze_extra_statistics">独立环路：%1$d\n死胡同占单元比例：%2$d%%</string>
 </resources>

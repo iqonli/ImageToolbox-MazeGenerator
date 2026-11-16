@@ -25,11 +25,8 @@ import com.t8rin.imagetoolbox.feature.maze_generation.domain.*
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-
-@Serializable data class MazePreset(val name: String, val recipe: MazeRecipe)
 
 class MazeRecipeStore
 @Inject
@@ -60,44 +57,6 @@ constructor(
     suspend fun saveLast(recipe: MazeRecipe) =
         withContext(dispatchers.ioDispatcher) {
             preferences.edit().putString("last", encode(recipe)).apply()
-        }
-
-    suspend fun presets(): List<MazePreset> =
-        withContext(dispatchers.ioDispatcher) {
-            runCatching {
-                    json.decodeFromString<List<MazePreset>>(
-                        preferences.getString("presets", "[]")!!
-                    )
-                }
-                .getOrDefault(emptyList())
-                .filter { runCatching { it.recipe.validated() }.isSuccess }
-        }
-
-    suspend fun savePresets(presets: List<MazePreset>) =
-        withContext(dispatchers.ioDispatcher) {
-            preferences.edit().putString("presets", json.encodeToString(presets.take(50))).apply()
-        }
-
-    suspend fun read(uri: Uri): String =
-        withContext(dispatchers.ioDispatcher) {
-            context.contentResolver.openInputStream(uri)!!.use { input ->
-                val output = java.io.ByteArrayOutputStream()
-                val buffer = ByteArray(8192)
-                while (true) {
-                    val count = input.read(buffer)
-                    if (count < 0) break
-                    require(output.size() + count <= 500_000) { "Recipe exceeds 500 KB" }
-                    output.write(buffer, 0, count)
-                }
-                output.toString(Charsets.UTF_8.name())
-            }
-        }
-
-    suspend fun write(uri: Uri, bytes: ByteArray) =
-        withContext(dispatchers.ioDispatcher) {
-            requireNotNull(context.contentResolver.openOutputStream(uri, "wt")).use {
-                it.write(bytes)
-            }
         }
 
     suspend fun sampleMask(

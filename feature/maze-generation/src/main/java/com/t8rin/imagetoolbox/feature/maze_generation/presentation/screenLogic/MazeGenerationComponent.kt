@@ -41,14 +41,12 @@ import com.t8rin.imagetoolbox.core.settings.domain.SettingsManager
 import com.t8rin.imagetoolbox.core.ui.utils.BaseHistoryComponent
 import com.t8rin.imagetoolbox.core.ui.utils.helper.AppToastHost
 import com.t8rin.imagetoolbox.core.ui.utils.navigation.Screen
-import com.t8rin.imagetoolbox.feature.maze_generation.data.MazePreset
 import com.t8rin.imagetoolbox.feature.maze_generation.data.MazeRecipeStore
 import com.t8rin.imagetoolbox.feature.maze_generation.domain.*
 import com.t8rin.imagetoolbox.feature.maze_generation.rendering.*
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
-import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.roundToInt
 import kotlinx.coroutines.CancellationException
@@ -104,27 +102,11 @@ internal constructor(
     var error by mutableStateOf<String?>(null)
         private set
 
-    var presets by mutableStateOf<List<MazePreset>>(emptyList())
-        private set
-
-    var seedLocked by mutableStateOf(false)
-        private set
-
-    var playing by mutableStateOf(false)
-        private set
-
-    var animationPosition by mutableStateOf(1f)
-        private set
-
-    var animationSpeed by mutableStateOf(1000)
-        private set
-
-    var animateSolution by mutableStateOf(false)
+    var previewVector by mutableStateOf<MazeSvgPainter?>(null)
         private set
 
     private var revision = 0
     private var generationJob: Job? = null
-    private var animationJob: Job? = null
     private var savingJob: Job? = null
     private var persistenceJob: Job? = null
     private var cached: Pair<MazeRecipe, MazeResult>? = null
@@ -134,9 +116,12 @@ internal constructor(
         resetHistory()
         componentScope.launch {
             val last = store.loadLast()
-            presets = store.presets()
             if (revision == 0) {
-                recipe = last
+                recipe =
+                    last.copy(
+                        seed = last.seed.coerceIn(-10000, 10000),
+                        style = last.style.withColorAlpha(),
+                    )
                 resetHistory()
                 updatePreview()
             }
@@ -175,47 +160,49 @@ internal constructor(
             }
     }
 
-    fun setTopology(value: MazeTopology) = updateRecipe(recipe.copy(topology = value))
-
-    fun updateSeedLocked(value: Boolean) {
-        seedLocked = value
-    }
-
-    fun newMaze() {
-        if (!seedLocked)
-            updateRecipe(recipe.copy(seed = kotlin.random.Random.nextInt(-1000000, 1000001)))
-        else updatePreview()
-    }
+    fun setTopology(value: MazeTopology) =
+        updateRecipe(
+            recipe.copy(
+                topology = value,
+                algorithm =
+                    recipe.algorithm.takeIf { it.supports(value) } ?: MazeAlgorithm.Backtracker,
+            )
+        )
 
     fun setWidth(value: Int) {
-        val width = value.coerceIn(16, 8192).coerceAtMost(32_000_000 / outputSize.height)
+        val width = value.coerceAtMost(8192)
         change { outputSize = outputSize.copy(width = width) }
         updatePreview()
     }
 
     fun setHeight(value: Int) {
-        val height = value.coerceIn(16, 8192).coerceAtMost(32_000_000 / outputSize.width)
+        val height = value.coerceAtMost(8192)
         change { outputSize = outputSize.copy(height = height) }
         updatePreview()
     }
 
     fun updateImageFormat(value: ImageFormat) {
-        change { imageFormat = value }
+        if (!svg && value == imageFormat) return
+        change {
+            imageFormat = value
+            svg = false
+        }
+        updatePreview()
     }
 
     fun updateQuality(value: Quality) {
-        change { quality = value }
+        if (value != quality) change { quality = value }
     }
 
     fun updateSvg(value: Boolean) {
+        if (svg == value) return
         change { svg = value }
+        updatePreview()
     }
 
     fun dismissError() {
         error = null
     }
-
-    fun recipeJson() = store.encode(recipe)
 
     private fun updatePreview() {
         revision++
@@ -223,8 +210,14 @@ internal constructor(
         val input = recipe
         val size = outputSize
         generationJob?.cancel()
-        pauseAnimation()
-        animationPosition = 1f
+        // Empty fields are retained while editing, just like Noise Generation.
+        if (size.width <= 0 || size.height <= 0) {
+            previewBitmap = null
+            previewVector = null
+            _isImageLoading.value = false
+            return
+        }
+        val vector = svg
         _isImageLoading.value = true
         generationJob =
             componentScope.launch {
@@ -236,17 +229,29 @@ internal constructor(
                             if (cache?.first == input.graphKey()) cache.second
                             else MazeGenerator.generate(input)
                         }
-                    val (solution, bitmap) =
+                    val (solution, image) =
                         withContext(defaultDispatcher) {
                             val solution = MazeSolver.solve(result, input)
                             val scene = MazeSceneBuilder.build(result, solution, input)
-                            solution to preview(scene, size)
+                            solution to
+                                if (vector) {
+                                    MazeSvgPainter.create(
+                                        MazeSvgRenderer.render(
+                                            scene,
+                                            size.width,
+                                            size.height,
+                                            store.encode(input),
+                                        ),
+                                        size,
+                                    )
+                                } else preview(scene, size)
                         }
                     ensureActive()
                     if (ticket == revision) {
                         cached = input.graphKey() to result
                         currentSolution = solution
-                        previewBitmap = bitmap
+                        previewBitmap = image as? Bitmap
+                        previewVector = image as? MazeSvgPainter
                         statistics = MazeSolver.statistics(result, solution)
                         elapsedMillis = result.elapsedMillis
                         error = null
@@ -257,6 +262,7 @@ internal constructor(
                     if (ticket == revision) {
                         error = t.message ?: t.javaClass.simpleName
                         previewBitmap = null
+                        previewVector = null
                         statistics = null
                     }
                 } finally {
@@ -278,111 +284,6 @@ internal constructor(
         revision++
         generationJob?.cancel()
         _isImageLoading.value = false
-    }
-
-    fun pauseAnimation() {
-        animationJob?.cancel()
-        animationJob = null
-        playing = false
-    }
-
-    fun updateAnimationSpeed(value: Int) {
-        animationSpeed = value.coerceIn(20, 10000)
-    }
-
-    fun updateAnimateSolution(value: Boolean) {
-        pauseAnimation()
-        animateSolution = value
-        seekAnimation(0f)
-    }
-
-    fun stepAnimation() {
-        val total =
-            if (animateSolution) (currentSolution?.path?.size ?: 1)
-            else (cached?.second?.events?.size ?: 1)
-        seekAnimation((animationPosition + 1f / total.coerceAtLeast(1)).coerceAtMost(1f))
-    }
-
-    fun seekAnimation(value: Float) {
-        pauseAnimation()
-        animate(value.coerceIn(0f, 1f), false)
-    }
-
-    fun playAnimation() {
-        pauseAnimation()
-        animate(if (animationPosition >= 1f) 0f else animationPosition, true)
-    }
-
-    private fun animate(from: Float, play: Boolean) {
-        val result = cached?.takeIf { it.first == recipe.graphKey() }?.second ?: return
-        val solution = currentSolution ?: return
-        if (isImageLoading) return
-        val input = recipe
-        val size = outputSize
-        val solutionMode = animateSolution
-        val ticket = revision
-        animationJob =
-            componentScope.launch {
-                playing = play
-                try {
-                    val total =
-                        if (solutionMode) solution.path.size.coerceAtLeast(1)
-                        else result.events.size.coerceAtLeast(1)
-                    var index = (from * total).toInt()
-                    val links = result.initialPassages.copyOf()
-                    suspend fun apply(begin: Int, end: Int) {
-                        for (i in begin until end.coerceAtMost(result.events.size)) {
-                            if (i % 1024 == 0)
-                                kotlinx.coroutines.currentCoroutineContext().ensureActive()
-                            val event = result.events[i]
-                            links[abs(event) - 1] = event > 0
-                        }
-                    }
-                    if (!solutionMode) withContext(defaultDispatcher) { apply(0, index) }
-                    while (true) {
-                        ensureActive()
-                        val progress = index.toFloat() / total
-                        val bitmap =
-                            withContext(defaultDispatcher) {
-                                val effective =
-                                    input.copy(
-                                        style =
-                                            input.style.copy(
-                                                showSolution =
-                                                    solutionMode ||
-                                                        (index == total && input.style.showSolution)
-                                            )
-                                    )
-                                preview(
-                                    MazeSceneBuilder.build(
-                                        result,
-                                        solution,
-                                        effective,
-                                        if (solutionMode) result.passages else links,
-                                        if (solutionMode) progress else 1f,
-                                    ),
-                                    size,
-                                )
-                            }
-                        ensureActive()
-                        if (ticket != revision) break
-                        previewBitmap = bitmap
-                        animationPosition = progress
-                        if (!play || index >= total) break
-                        delay(33)
-                        val next =
-                            (index + (animationSpeed / 30).coerceAtLeast(1)).coerceAtMost(total)
-                        if (!solutionMode) withContext(defaultDispatcher) { apply(index, next) }
-                        index = next
-                    }
-                } catch (e: CancellationException) {
-                    throw e
-                } catch (t: Throwable) {
-                    error = t.message ?: t.javaClass.simpleName
-                } finally {
-                    playing = false
-                }
-            }
     }
 
     /** Manual indices can be set accessibly with controls; tapping selects the nearest cell. */
@@ -425,7 +326,7 @@ internal constructor(
         }
 
     private fun export(action: suspend (Export, MazeScene) -> Unit) {
-        if (isSaving) return
+        if (isSaving || outputSize.width <= 0 || outputSize.height <= 0) return
         val snapshot = Export(recipe, outputSize, imageFormat, quality, svg)
         isSaving = true
         savingJob =
@@ -551,48 +452,6 @@ internal constructor(
         savingJob?.cancel()
     }
 
-    fun savePreset(name: String) {
-        val title = name.trim().take(80)
-        if (title.isEmpty()) return
-        componentScope.launch {
-            presets =
-                (presets.filterNot { it.name == title } + MazePreset(title, recipe)).takeLast(50)
-            store.savePresets(presets)
-        }
-    }
-
-    fun deletePreset(name: String) {
-        componentScope.launch {
-            presets = presets.filterNot { it.name == name }
-            store.savePresets(presets)
-        }
-    }
-
-    fun importRecipe(uri: Uri) {
-        componentScope.launch {
-            try {
-                updateRecipe(store.decode(store.read(uri)))
-            } catch (e: CancellationException) {
-                throw e
-            } catch (t: Throwable) {
-                error = t.message ?: t.javaClass.simpleName
-            }
-        }
-    }
-
-    fun exportRecipe(uri: Uri) {
-        val value = recipeJson()
-        componentScope.launch {
-            try {
-                store.write(uri, value.toByteArray())
-            } catch (e: CancellationException) {
-                throw e
-            } catch (t: Throwable) {
-                error = t.message ?: t.javaClass.simpleName
-            }
-        }
-    }
-
     fun importMask(uri: Uri, threshold: Int, invert: Boolean) {
         val input = recipe
         componentScope.launch {
@@ -613,6 +472,11 @@ internal constructor(
             }
         }
     }
+
+    private fun MazeStyle.withColorAlpha(): MazeStyle =
+        if (transparent) {
+            copy(backgroundColor = backgroundColor and 0x00ffffff, transparent = false)
+        } else this
 
     override fun currentHistorySnapshot() =
         HistorySnapshot(

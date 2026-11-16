@@ -30,7 +30,7 @@ import kotlinx.coroutines.ensureActive
 
 object MazeBitmapRenderer {
     suspend fun render(scene: MazeScene, width: Int, height: Int): Bitmap {
-        require(width in 1..8192 && height in 1..8192 && width.toLong() * height <= 32_000_000)
+        require(width in 1..8192 && height in 1..8192)
         require(
             scene.minX.isFinite() && scene.minY.isFinite() &&
                 scene.width.isFinite() && scene.width > 0f &&

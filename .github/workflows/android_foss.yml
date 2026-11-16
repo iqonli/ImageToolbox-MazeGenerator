@@ -54,11 +54,56 @@ jobs:
               "$apk"
           done
 
-      - name: Upload FOSS APKs
+      - name: Prepare individual APKs and build notes
+        shell: bash
+        run: |
+          mkdir -p "$RUNNER_TEMP/maze-apks"
+          for abi in armeabi-v7a arm64-v8a x86_64 universal; do
+            mapfile -t apks < <(find app/build/outputs/apk/foss/release -maxdepth 1 -type f -name "*${abi}*.apk")
+            if [ "${#apks[@]}" -ne 1 ]; then
+              echo "Expected one APK for $abi, found ${#apks[@]}" >&2
+              exit 1
+            fi
+            cp "${apks[0]}" "$RUNNER_TEMP/maze-apks/ImageToolbox-MazeGenerator-${abi}.apk"
+          done
+          cat >> "$GITHUB_STEP_SUMMARY" <<'NOTES'
+          ### Maze Generator FOSS build
+          - Package: `ru.tech.imageresizershrinker.iqonli` (installs alongside the original app).
+          - Fork suffix: `.iqonli`; remove it from `applicationId` and both `file_provider` values in `app/build.gradle.kts` to restore upstream identifiers.
+          - Each signed APK is uploaded individually without a ZIP wrapper.
+          NOTES
+
+      - name: Upload arm64-v8a APK
         uses: actions/upload-artifact@v7
         with:
-          name: Signed FOSS APKs
-          path: app/build/outputs/apk/foss/release/*.apk
+          name: ImageToolbox-MazeGenerator-arm64-v8a.apk
+          path: ${{ runner.temp }}/maze-apks/ImageToolbox-MazeGenerator-arm64-v8a.apk
+          archive: false
+          if-no-files-found: error
+
+      - name: Upload armeabi-v7a APK
+        uses: actions/upload-artifact@v7
+        with:
+          name: ImageToolbox-MazeGenerator-armeabi-v7a.apk
+          path: ${{ runner.temp }}/maze-apks/ImageToolbox-MazeGenerator-armeabi-v7a.apk
+          archive: false
+          if-no-files-found: error
+
+      - name: Upload x86_64 APK
+        uses: actions/upload-artifact@v7
+        with:
+          name: ImageToolbox-MazeGenerator-x86_64.apk
+          path: ${{ runner.temp }}/maze-apks/ImageToolbox-MazeGenerator-x86_64.apk
+          archive: false
+          if-no-files-found: error
+
+      - name: Upload universal APK
+        uses: actions/upload-artifact@v7
+        with:
+          name: ImageToolbox-MazeGenerator-universal.apk
+          path: ${{ runner.temp }}/maze-apks/ImageToolbox-MazeGenerator-universal.apk
+          archive: false
+          if-no-files-found: error
 
       - name: Delete FOSS APKs
         run: rm -rf app/build/outputs/apk/foss

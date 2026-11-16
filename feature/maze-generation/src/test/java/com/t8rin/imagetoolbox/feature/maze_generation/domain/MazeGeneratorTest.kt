@@ -50,7 +50,7 @@ class MazeGeneratorTest {
                         columns = 6,
                         seed = seed,
                     )
-                val result = MazeGenerator.generate(recipe)
+                val result = MazeGenerator.generate(recipe, captureEvents = true)
                 val label = "$topology / $algorithm / $seed"
                 assertEquals(
                     label,
@@ -58,7 +58,7 @@ class MazeGeneratorTest {
                     reachable(result.graph, result.passages).size,
                 )
                 assertEquals(label, result.graph.cells.size - 1, result.passages.count { it })
-                val again = MazeGenerator.generate(recipe)
+                val again = MazeGenerator.generate(recipe, captureEvents = true)
                 assertArrayEquals(label, result.passages, again.passages)
                 assertArrayEquals(label, result.events, again.events)
                 val solution = MazeSolver.solve(result, recipe)
@@ -83,7 +83,7 @@ class MazeGeneratorTest {
     fun braidNeverDisconnectsOrClosesPassages() = runBlocking {
         for (topology in MazeTopology.entries) {
             val recipe = MazeRecipe(topology = topology, rows = 8, columns = 9)
-            val tree = MazeGenerator.generate(recipe)
+            val tree = MazeGenerator.generate(recipe, captureEvents = true)
             val braided = MazeGenerator.generate(recipe.copy(braid = 100))
             tree.passages.indices.forEach {
                 if (tree.passages[it]) assertTrue(braided.passages[it])
@@ -135,7 +135,7 @@ class MazeGeneratorTest {
             }
         }
         for (recipe in recipes) {
-            val result = MazeGenerator.generate(recipe)
+            val result = MazeGenerator.generate(recipe, captureEvents = true)
             assertEquals(result.graph.cells.size, reachable(result.graph, result.passages).size)
             assertEquals(result.graph.cells.size - 1, result.passages.count { it })
         }
@@ -153,7 +153,7 @@ class MazeGeneratorTest {
                     columns = 2,
                     imageMask = listOf(true, false, false, false),
                 )
-            val maze = MazeGenerator.generate(recipe)
+            val maze = MazeGenerator.generate(recipe, captureEvents = true)
             assertEquals(1, maze.graph.cells.size)
             assertEquals(0, maze.passages.count { it })
             assertArrayEquals(intArrayOf(0), MazeSolver.solve(maze, recipe).path)
@@ -169,7 +169,7 @@ class MazeGeneratorTest {
                 entrance = MazeEntrance.Opposite,
                 style = MazeStyle(showSolution = false),
             )
-        val maze = MazeGenerator.generate(recipe)
+        val maze = MazeGenerator.generate(recipe, captureEvents = true)
         val solution = MazeSolver.solve(maze, recipe)
         val hidden = MazeSceneBuilder.build(maze, solution, recipe)
         assertTrue(hidden.solution.isEmpty())
@@ -214,6 +214,16 @@ class MazeGeneratorTest {
         } catch (expected: IllegalStateException) {
             assertTrue(expected.message!!.contains("disconnected"))
         }
+    }
+
+    @Test
+    fun productionGenerationDoesNotRetainAnimationDeltas() = runBlocking {
+        val recipe = MazeRecipe(algorithm = MazeAlgorithm.OriginShift, rows = 5, columns = 5)
+        val normal = MazeGenerator.generate(recipe)
+        val captured = MazeGenerator.generate(recipe, captureEvents = true)
+        assertTrue(normal.events.isEmpty())
+        assertTrue(captured.events.isNotEmpty())
+        assertArrayEquals(normal.passages, captured.passages)
     }
 
     @Test
