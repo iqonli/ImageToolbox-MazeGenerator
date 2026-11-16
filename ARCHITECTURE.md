@@ -75,6 +75,7 @@ graph LR
         :feature:color-tools("color-tools")
         :feature:webp-tools("webp-tools")
         :feature:noise-generation("noise-generation")
+        :feature:maze-generation("maze-generation")
         :feature:collage-maker("collage-maker")
         :feature:libraries-info("libraries-info")
         :feature:markup-layers("markup-layers")
@@ -134,6 +135,7 @@ graph LR
     :feature:root --> :feature:color-tools
     :feature:root --> :feature:webp-tools
     :feature:root --> :feature:noise-generation
+    :feature:root --> :feature:maze-generation
     :feature:root --> :feature:collage-maker
     :feature:root --> :feature:libraries-info
     :feature:root --> :feature:markup-layers
@@ -272,6 +274,13 @@ graph LR
     :core:ui --> :core:utils
     :core:ui --> :core:di
     :core:ui --> :core:settings
+    :feature:maze-generation --> :core:data
+    :feature:maze-generation --> :core:ui
+    :feature:maze-generation --> :core:domain
+    :feature:maze-generation --> :core:resources
+    :feature:maze-generation --> :core:settings
+    :feature:maze-generation --> :core:di
+    :feature:maze-generation --> :core:crash
     :feature:noise-generation --> :core:data
     :feature:noise-generation --> :core:ui
     :feature:noise-generation --> :core:domain
