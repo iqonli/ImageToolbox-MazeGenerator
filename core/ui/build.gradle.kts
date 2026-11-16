@@ -48,9 +48,7 @@ dependencies {
     api(projects.core.utils)
     implementation(projects.core.di)
     implementation(projects.core.settings)
-    implementation(projects.core.games)
 
-    implementation(libs.dotlottie.android)
 
     // Navigation
     api(libs.decompose)
@@ -74,13 +72,10 @@ dependencies {
     api(projects.lib.dynamicTheme)
     api(projects.lib.colors)
     api(projects.lib.gesture)
-    api(projects.lib.image)
     api(projects.lib.modalsheet)
     api(projects.lib.zoomable)
-    api(projects.lib.snowfall)
     implementation(projects.lib.cropper)
-    implementation(projects.lib.palette)
-    implementation(libs.toolbox.histogram)
+
 
     api(libs.reorderable)
 
@@ -96,23 +91,8 @@ dependencies {
     implementation(libs.datastore.core.android)
     api(libs.material)
 
-    "marketImplementation"(platform(libs.firebase.bom))
-    "marketImplementation"(libs.firebase.crashlytics)
-    "marketImplementation"(libs.firebase.analytics)
-    "marketImplementation"(libs.review.ktx)
-    "marketImplementation"(libs.app.update)
-    "marketImplementation"(libs.app.update.ktx)
 
-    "marketImplementation"(libs.mlkit.document.scanner)
-    "fossImplementation"(projects.lib.documentscanner)
 
-    "marketImplementation"(libs.quickie.bundled)
-    "fossImplementation"(libs.quickie.foss)
-    implementation(libs.zxing.core)
-
-    implementation(projects.lib.qrose)
-
-    implementation(libs.jsoup)
 
     api(libs.backdrop)
     api(libs.capsule)

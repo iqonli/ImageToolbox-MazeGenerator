@@ -40,10 +40,6 @@ import com.t8rin.imagetoolbox.core.domain.image.model.ScaleColorSpace
 import com.t8rin.imagetoolbox.core.domain.model.IntegerSize
 import com.t8rin.imagetoolbox.core.domain.model.Position
 import com.t8rin.imagetoolbox.core.domain.utils.runSuspendCatching
-import com.t8rin.imagetoolbox.core.filters.domain.FilterProvider
-import com.t8rin.imagetoolbox.core.filters.domain.model.Filter
-import com.t8rin.imagetoolbox.core.filters.domain.model.FilterValues
-import com.t8rin.imagetoolbox.core.filters.domain.model.createFilter
 import com.t8rin.imagetoolbox.core.settings.domain.SettingsProvider
 import com.t8rin.imagetoolbox.core.utils.makeLog
 import com.t8rin.trickle.MagicResizeType
@@ -58,7 +54,6 @@ import com.awxkee.aire.ScaleColorSpace as AireScaleColorSpace
 internal class AndroidImageScaler @Inject constructor(
     settingsProvider: SettingsProvider,
     private val imageTransformer: ImageTransformer<Bitmap>,
-    private val filterProvider: FilterProvider<Bitmap>,
     dispatchersHolder: DispatchersHolder
 ) : DispatchersHolder by dispatchersHolder, ImageScaler<Bitmap> {
 
@@ -207,31 +202,7 @@ internal class AndroidImageScaler @Inject constructor(
             imageScaleMode = imageScaleMode
         )
 
-        val blurredBitmap = imageTransformer.transform(
-            image = drawImage.let { bitmap ->
-                val xScale: Float = targetWidth.toFloat() / originalWidth
-                val yScale: Float = targetHeight.toFloat() / originalHeight
-                val scale = xScale.coerceAtLeast(yScale)
-                createScaledBitmap(
-                    image = bitmap,
-                    width = (scale * originalWidth).toInt(),
-                    height = (scale * originalHeight).toInt(),
-                    imageScaleMode = imageScaleMode
-                )
-            },
-            transformations = listOf(
-                filterProvider.filterToTransformation(
-                    createFilter<Filter.NativeStackBlur.Value, Filter.NativeStackBlur>(
-                        FilterValues.nativeStackBlur(
-                            blurRadius.toFloat() / 1000 * max(
-                                targetWidth,
-                                targetHeight
-                            )
-                        )
-                    )
-                )
-            )
-        )
+        val blurredBitmap: Bitmap? = null
 
         createBitmap(targetWidth, targetHeight, drawImage.safeConfig).apply { setHasAlpha(true) }
             .applyCanvas {

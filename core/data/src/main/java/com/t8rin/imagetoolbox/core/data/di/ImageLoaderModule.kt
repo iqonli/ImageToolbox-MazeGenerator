@@ -18,7 +18,6 @@
 package com.t8rin.imagetoolbox.core.data.di
 
 import android.content.Context
-import android.os.Build
 import coil3.ComponentRegistry
 import coil3.ImageLoader
 import coil3.SingletonImageLoader
@@ -26,43 +25,19 @@ import coil3.annotation.DelicateCoilApi
 import coil3.annotation.ExperimentalCoilApi
 import coil3.disk.DiskCache
 import coil3.disk.directory
-import coil3.gif.AnimatedImageDecoder
-import coil3.gif.GifDecoder
 import coil3.imageLoader
 import coil3.memory.MemoryCache
-import coil3.network.DeDupeConcurrentRequestStrategy
-import coil3.network.ktor3.KtorNetworkFetcherFactory
 import coil3.request.allowHardware
 import coil3.request.maxBitmapSize
 import coil3.size.Size
 import coil3.util.Logger
-import com.gemalto.jp2.coil.Jpeg2000Decoder
-import com.t8rin.awebp.coil.AnimatedWebPDecoder
-import com.t8rin.djvu_coder.coil.DjvuDecoder
-import com.t8rin.imagetoolbox.core.data.coil.AnimatedJxlDecoder
-import com.t8rin.imagetoolbox.core.data.coil.AnimatedPngDecoderFactory
-import com.t8rin.imagetoolbox.core.data.coil.Base64Fetcher
 import com.t8rin.imagetoolbox.core.data.coil.CoilLogger
-import com.t8rin.imagetoolbox.core.data.coil.HeifDecoder
-import com.t8rin.imagetoolbox.core.data.coil.OriginalUriMapper
-import com.t8rin.imagetoolbox.core.data.coil.PdfDecoder
-import com.t8rin.imagetoolbox.core.data.coil.SvgDecoderCompat
-import com.t8rin.imagetoolbox.core.data.coil.TimeMeasureInterceptor
-import com.t8rin.imagetoolbox.core.data.coil.VVCDecoder
-import com.t8rin.imagetoolbox.core.data.coil.rawDecodeOptions
 import com.t8rin.imagetoolbox.core.domain.coroutines.DispatchersHolder
-import com.t8rin.imagetoolbox.core.resources.BuildConfig
-import com.t8rin.imagetoolbox.core.settings.domain.SettingsProvider
-import com.t8rin.psd.coil.PsdDecoder
-import com.t8rin.qoi_coder.coil.QoiDecoder
-import com.t8rin.raw_coder.coil.RawDecoder
-import com.t8rin.tiff_coder.coil.TiffDecoder
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import io.ktor.client.HttpClient
 import java.io.File
 import javax.inject.Singleton
 
@@ -105,44 +80,6 @@ internal object ImageLoaderModule {
     @Singleton
     fun provideCoilLogger(): Logger = CoilLogger()
 
-    @Provides
-    @Singleton
-    fun provideComponentRegistry(
-        client: HttpClient,
-        settingsProvider: SettingsProvider
-    ): ComponentRegistry = ComponentRegistry.Builder()
-        .apply {
-            add(OriginalUriMapper)
-            add(
-                KtorNetworkFetcherFactory(
-                    httpClient = client,
-                    concurrentRequestStrategy = DeDupeConcurrentRequestStrategy()
-                )
-            )
-            add(
-                RawDecoder.Factory {
-                    settingsProvider.settingsState.value.rawDecodeOptions()
-                }
-            )
-            add(TiffDecoder.Factory())
-            add(AnimatedPngDecoderFactory)
-            if (Build.VERSION.SDK_INT >= 28) add(AnimatedImageDecoder.Factory())
-            else {
-                add(GifDecoder.Factory())
-                add(AnimatedWebPDecoder.Factory())
-            }
-            add(SvgDecoderCompat.Factory())
-            add(VVCDecoder.Factory())
-            add(HeifDecoder.Factory())
-            add(AnimatedJxlDecoder.Factory())
-            add(Jpeg2000Decoder.Factory())
-            add(QoiDecoder.Factory())
-            add(PsdDecoder.Factory())
-            add(DjvuDecoder.Factory())
-            add(Base64Fetcher.Factory())
-            add(PdfDecoder.Factory())
-            if (BuildConfig.DEBUG) add(TimeMeasureInterceptor)
-        }
-        .build()
-
+    @Provides @Singleton
+    fun provideComponentRegistry(): ComponentRegistry = ComponentRegistry.Builder().build()
 }

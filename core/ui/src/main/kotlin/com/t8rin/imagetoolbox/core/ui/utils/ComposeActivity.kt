@@ -43,7 +43,6 @@ import com.google.android.material.color.DynamicColorsOptions
 import com.t8rin.imagetoolbox.core.di.entryPoint
 import com.t8rin.imagetoolbox.core.domain.coroutines.DispatchersHolder
 import com.t8rin.imagetoolbox.core.domain.model.SystemBarsVisibility
-import com.t8rin.imagetoolbox.core.domain.remote.AnalyticsManager
 import com.t8rin.imagetoolbox.core.domain.resource.ResourceManager
 import com.t8rin.imagetoolbox.core.domain.saving.FileController
 import com.t8rin.imagetoolbox.core.domain.saving.FileController.Companion.toMetadataProvider
@@ -58,7 +57,6 @@ import com.t8rin.imagetoolbox.core.settings.presentation.provider.LocalSimpleSet
 import com.t8rin.imagetoolbox.core.ui.utils.ComposeApplication.Companion.wrap
 import com.t8rin.imagetoolbox.core.ui.utils.content_pickers.LocalImagePickerEventEmitter
 import com.t8rin.imagetoolbox.core.ui.utils.content_pickers.rememberImagePickerEventEmitter
-import com.t8rin.imagetoolbox.core.ui.utils.helper.ReviewHandler
 import com.t8rin.imagetoolbox.core.ui.utils.provider.LocalKeepAliveService
 import com.t8rin.imagetoolbox.core.ui.utils.provider.LocalMetadataProvider
 import com.t8rin.imagetoolbox.core.ui.utils.provider.LocalResourceManager
@@ -80,8 +78,6 @@ import javax.inject.Inject
 @AndroidEntryPoint
 abstract class ComposeActivity : AppCompatActivity() {
 
-    @Inject
-    lateinit var analyticsManager: AnalyticsManager
 
     @Inject
     lateinit var dispatchersHolder: DispatchersHolder
@@ -143,7 +139,6 @@ abstract class ComposeActivity : AppCompatActivity() {
         enableEdgeToEdge()
         wrap(application)?.runSetup()
 
-        observeReview()
 
         settingsManager
             .settingsState
@@ -151,12 +146,10 @@ abstract class ComposeActivity : AppCompatActivity() {
                 _settingsState.update { state }
                 handleSystemBarsBehavior()
                 handleSecureMode()
-                updateFirebaseParams()
                 applyDynamicColors()
             }
             .launchIn(activityScope)
 
-        updateFirebaseParams()
 
         handleSystemBarsBehavior()
 
@@ -201,11 +194,6 @@ abstract class ComposeActivity : AppCompatActivity() {
                 level = Logger.Level.Warn
             )
         }
-    }
-
-    private fun updateFirebaseParams() = analyticsManager.apply {
-        updateAllowCollectCrashlytics(settingsState.allowCollectCrashlytics)
-        updateAnalyticsCollectionEnabled(settingsState.allowCollectCrashlytics)
     }
 
     private var recreationJob: Job? by smartJob()
@@ -278,17 +266,6 @@ abstract class ComposeActivity : AppCompatActivity() {
             window?.clearFlags(
                 WindowManager.LayoutParams.FLAG_SECURE
             )
-        }
-    }
-
-    private fun observeReview() {
-        activityScope.launch {
-            ReviewHandler.current.apply {
-                reviewRequests.collect {
-                    makeLog("collect reviewRequests")
-                    showReview(this@ComposeActivity)
-                }
-            }
         }
     }
 

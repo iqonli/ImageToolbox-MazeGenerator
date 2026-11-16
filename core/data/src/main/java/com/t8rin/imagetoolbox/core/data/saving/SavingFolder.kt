@@ -28,6 +28,7 @@ import androidx.annotation.RequiresApi
 import androidx.core.net.toUri
 import androidx.documentfile.provider.DocumentFile
 import com.t8rin.imagetoolbox.core.data.saving.io.StreamWriteable
+import com.t8rin.imagetoolbox.core.domain.saving.uniqueFilename
 import com.t8rin.imagetoolbox.core.domain.saving.model.ImageSaveTarget
 import com.t8rin.imagetoolbox.core.domain.saving.model.SaveTarget
 import com.t8rin.imagetoolbox.core.resources.R
@@ -164,16 +165,10 @@ internal data class SavingFolder private constructor(
         ): SavingFolder? {
             if (!documentFile.exists()) return null
 
-            val filename = saveTarget.filename ?: return null
-            if (documentFile.findFile(filename) != null) {
-                throw filenameCollision(filename)
-            }
-
+            val requested = saveTarget.filename ?: return null
+            val filename = uniqueFilename(requested) { documentFile.findFile(it) != null }
             val file = documentFile.createFile(saveTarget.mimeType.entry, filename) ?: return null
-            if (file.name != filename) {
-                file.delete()
-                throw filenameCollision(filename)
-            }
+            // Providers may choose their own collision suffix; retain the URI they actually created.
 
             return SavingFolder(
                 outputStream = contentResolver.openOutputStream(file.uri) ?: return null,
@@ -228,7 +223,7 @@ internal data class SavingFolder private constructor(
                 put(MediaStore.MediaColumns.MIME_TYPE, mimeType)
                 put(
                     MediaStore.MediaColumns.RELATIVE_PATH,
-                    relativePath ?: "${Environment.DIRECTORY_DOCUMENTS}/ImageToolbox"
+                    relativePath ?: "${Environment.DIRECTORY_DOCUMENTS}/ezMaze"
                 )
             }
 
@@ -293,20 +288,11 @@ internal data class SavingFolder private constructor(
                     )
                 } else null
             }
-            if (actualFilename != null && actualFilename != filename) {
-                runCatching {
-                    contentResolver.delete(uri, null, null)
-                }.onFailure {
-                    it.makeLog("createViaMediaStore collision cleanup")
-                }
-                throw filenameCollision(filename)
-            }
-
             return SavingFolder(
                 outputStream = contentResolver.openOutputStream(uri)
                     ?: return null,
                 fileUri = uri,
-                savingPath = relativePath ?: "${Environment.DIRECTORY_DOCUMENTS}/ImageToolbox"
+                savingPath = relativePath ?: "${Environment.DIRECTORY_DOCUMENTS}/ezMaze"
             )
         }
 
@@ -320,7 +306,7 @@ internal data class SavingFolder private constructor(
                 Environment.getExternalStoragePublicDirectory(
                     Environment.DIRECTORY_DOCUMENTS
                 ),
-                "ImageToolbox"
+                "ezMaze"
             )
         )
 
@@ -335,9 +321,10 @@ internal data class SavingFolder private constructor(
             if (!dir.exists()) dir.mkdirs()
             if (!dir.exists() || !dir.isDirectory) return null
 
-            val file = File(dir, filename)
-            if (file.exists()) throw context.filenameCollision(filename)
-
+            var file = File(dir, uniqueFilename(filename) { File(dir, it).exists() })
+            while (!file.createNewFile()) {
+                file = File(dir, uniqueFilename(filename) { File(dir, it).exists() })
+            }
             return SavingFolder(
                 outputStream = FileOutputStream(file),
                 fileUri = file.toUri(),

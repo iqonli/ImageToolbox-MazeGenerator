@@ -43,7 +43,6 @@ import com.t8rin.imagetoolbox.core.data.utils.isExternalStorageWritable
 import com.t8rin.imagetoolbox.core.data.utils.openFileDescriptor
 import com.t8rin.imagetoolbox.core.domain.coroutines.AppScope
 import com.t8rin.imagetoolbox.core.domain.coroutines.DispatchersHolder
-import com.t8rin.imagetoolbox.core.domain.history.AppHistoryRepository
 import com.t8rin.imagetoolbox.core.domain.image.Metadata
 import com.t8rin.imagetoolbox.core.domain.image.ShareProvider
 import com.t8rin.imagetoolbox.core.domain.image.clearAllAttributes
@@ -54,6 +53,7 @@ import com.t8rin.imagetoolbox.core.domain.image.readOnly
 import com.t8rin.imagetoolbox.core.domain.image.set
 import com.t8rin.imagetoolbox.core.domain.json.JsonParser
 import com.t8rin.imagetoolbox.core.domain.resource.ResourceManager
+import com.t8rin.imagetoolbox.core.domain.saving.verifySavedFile
 import com.t8rin.imagetoolbox.core.domain.saving.FileController
 import com.t8rin.imagetoolbox.core.domain.saving.FilenameCreator
 import com.t8rin.imagetoolbox.core.domain.saving.io.Writeable
@@ -96,7 +96,6 @@ internal class AndroidFileController @Inject constructor(
     private val shareProvider: ShareProvider,
     private val filenameCreator: FilenameCreator,
     private val jsonParser: JsonParser,
-    private val appHistoryRepository: AppHistoryRepository,
     private val appScope: AppScope,
     private val originalFileDeletionHelper: OriginalFileDeletionHelper,
     private val dataStore: DataStore<Preferences>,
@@ -135,14 +134,7 @@ internal class AndroidFileController @Inject constructor(
         ).makeLog("File Controller save")
 
         if (result is SaveResult.Success) {
-            appHistoryRepository.registerSuccessfulSave(
-                savedBytes = result.savedBytes,
-                savedFormat = if (saveTarget is ImageSaveTarget) {
-                    saveTarget.imageFormat.title
-                } else {
-                    saveTarget.extension
-                }
-            )
+            
             originalFileDeletionHelper.onSuccessfulSave()
         }
 
@@ -336,9 +328,12 @@ internal class AndroidFileController @Inject constructor(
                             settingsState.filenameBehavior !is FilenameBehavior.Overwrite
                 ) ?: throw IllegalArgumentException(getString(R.string.error_while_saving))
 
-                savingFolder.use {
-                    it.writeBytes(data)
+                savingFolder.use { it.writeBytes(data) }
+                val savedInput = requireNotNull(context.contentResolver.openInputStream(savingFolder.fileUri)) {
+                    getString(R.string.ezmaze_save_verification_error)
                 }
+                verifySavedFile(data, savedInput, getString(R.string.ezmaze_save_verification_error))
+                val actualFilename = savingFolder.fileUri.filename(context) ?: filename
 
                 copyMetadata(
                     initialExif = initialExif,
@@ -408,11 +403,11 @@ internal class AndroidFileController @Inject constructor(
                             (documentFile?.isDirectory != true && oneTimeSaveLocationUri != null)
                         if (isFile) {
                             getString(R.string.saved_to_custom)
-                        } else if (filename.isNotEmpty()) {
+                        } else if (actualFilename.isNotEmpty()) {
                             getString(
                                 R.string.saved_to,
                                 actualSavingPath,
-                                filename
+                                actualFilename
                             )
                         } else {
                             getString(
@@ -456,14 +451,7 @@ internal class AndroidFileController @Inject constructor(
         ).makeLog("File Controller move")
 
         if (result is SaveResult.Success) {
-            appHistoryRepository.registerSuccessfulSave(
-                savedBytes = result.savedBytes,
-                savedFormat = if (saveTarget is ImageSaveTarget) {
-                    saveTarget.imageFormat.title
-                } else {
-                    saveTarget.extension
-                }
-            )
+            
 
             runCatching {
                 context.contentResolver.delete(
@@ -820,10 +808,7 @@ internal class AndroidFileController @Inject constructor(
         }.onSuccess {
             val savedBytes = uri.toUri().fileSize() ?: 0
 
-            appHistoryRepository.registerSuccessfulSave(
-                savedBytes = savedBytes,
-                savedFormat = ""
-            )
+            
             return@withContext SaveResult.Success(
                 message = null,
                 savingPath = "",

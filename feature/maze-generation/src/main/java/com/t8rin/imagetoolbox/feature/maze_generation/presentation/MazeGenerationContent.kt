@@ -63,15 +63,17 @@ import com.t8rin.imagetoolbox.core.ui.widget.enhanced.EnhancedButton
 import com.t8rin.imagetoolbox.core.ui.widget.enhanced.EnhancedLoadingIndicator
 import com.t8rin.imagetoolbox.core.ui.widget.image.Picture
 import com.t8rin.imagetoolbox.core.ui.widget.modifier.container
-import com.t8rin.imagetoolbox.core.ui.widget.other.TopAppBarEmoji
-import com.t8rin.imagetoolbox.core.ui.widget.sheets.ProcessImagesPreferenceSheet
 import com.t8rin.imagetoolbox.core.ui.widget.sheets.ZoomModalSheet
 import com.t8rin.imagetoolbox.core.ui.widget.text.marquee
 import com.t8rin.imagetoolbox.feature.maze_generation.presentation.components.MazeControls
 import com.t8rin.imagetoolbox.feature.maze_generation.presentation.screenLogic.MazeGenerationComponent
 
 @Composable
-fun MazeGenerationContent(component: MazeGenerationComponent) {
+fun MazeGenerationContent(
+    component: MazeGenerationComponent,
+    onGoBack: () -> Unit,
+    extraActions: @Composable androidx.compose.foundation.layout.RowScope.() -> Unit = {}
+) {
     val isPortrait by isPortraitOrientationAsState()
 
     val saveBitmap: (oneTimeSaveLocationUri: String?) -> Unit = {
@@ -79,18 +81,11 @@ fun MazeGenerationContent(component: MazeGenerationComponent) {
     }
 
     val shareButton: @Composable () -> Unit = {
-        var editSheetData by remember { mutableStateOf(listOf<Uri>()) }
         ShareButton(
             onShare = component::shareMaze,
             onCopy = { component.cacheCurrentMaze({ uri -> Clipboard.copy(uri) }) },
-            onEdit = { component.cacheCurrentMaze { editSheetData = listOf(it) } },
         )
-        ProcessImagesPreferenceSheet(
-            uris = editSheetData,
-            visible = editSheetData.isNotEmpty(),
-            onDismiss = { editSheetData = emptyList() },
-            onNavigate = component.onNavigate,
-        )
+
     }
 
     var showZoom by rememberSaveable { mutableStateOf(false) }
@@ -100,7 +95,7 @@ fun MazeGenerationContent(component: MazeGenerationComponent) {
         shouldDisableBackHandler = false,
         title = {
             Text(
-                text = stringResource(R.string.maze_generation),
+                text = stringResource(R.string.app_name),
                 textAlign = TextAlign.Center,
                 modifier = Modifier.marquee(),
             )
@@ -131,7 +126,7 @@ fun MazeGenerationContent(component: MazeGenerationComponent) {
                 )
             }
         },
-        topAppBarPersistentActions = { TopAppBarEmoji() },
+        topAppBarPersistentActions = extraActions,
         imagePreview = {
             Box(contentAlignment = Alignment.Center) {
                 Picture(
@@ -203,7 +198,7 @@ fun MazeGenerationContent(component: MazeGenerationComponent) {
     )
 
     ExitWithoutSavingDialog(
-        onExit = component.onGoBack,
+        onExit = onGoBack,
         onDismiss = { showExitDialog = false },
         visible = showExitDialog,
     )

@@ -49,7 +49,6 @@ import com.t8rin.imagetoolbox.core.resources.icons.Route
 import com.t8rin.imagetoolbox.core.ui.utils.provider.ProvideContainerDefaults
 import com.t8rin.imagetoolbox.core.ui.widget.controls.selection.ColorRowSelector
 import com.t8rin.imagetoolbox.core.ui.widget.controls.selection.DataSelector
-import com.t8rin.imagetoolbox.core.ui.widget.controls.selection.SeedSelector
 import com.t8rin.imagetoolbox.core.ui.widget.enhanced.EnhancedButton
 import com.t8rin.imagetoolbox.core.ui.widget.enhanced.EnhancedSliderItem
 import com.t8rin.imagetoolbox.core.ui.widget.modifier.ShapeDefaults
@@ -130,12 +129,13 @@ internal fun MazeControls(component: MazeGenerationComponent) {
                     NumberSlider(R.string.maze_columns, p.columns, 2f..100f) {
                         change(resizeMask(p, p.rows, it))
                     }
-                SeedSelector(
+                EnhancedSliderItem(
                     value = p.seed,
+                    title = stringResource(R.string.seed),
                     valueRange = -10000f..10000f,
-                    onValueChange = { change(p.copy(seed = it.roundToInt())) },
-                    allowRandomizeAfterSave = false,
-                    shape = ShapeDefaults.center,
+                    internalStateTransformation = Float::roundToInt,
+                    onValueChange = { change(p.copy(seed = it.roundToInt().coerceIn(-10000, 10000))) },
+                    shape = ShapeDefaults.center
                 )
                 NumberSlider(R.string.maze_braid, p.braid, 0f..100f, suffix = "%") {
                     change(p.copy(braid = it))

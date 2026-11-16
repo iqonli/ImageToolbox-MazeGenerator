@@ -56,7 +56,6 @@ import com.t8rin.imagetoolbox.core.resources.R
 import com.t8rin.imagetoolbox.core.resources.getHelpString
 import com.t8rin.imagetoolbox.core.resources.icons.Settings
 import com.t8rin.imagetoolbox.core.ui.utils.helper.image_vector.toImageBitmap
-import com.t8rin.imagetoolbox.core.ui.utils.navigation.Screen
 import com.t8rin.imagetoolbox.core.ui.utils.permission.PermissionStatus
 import com.t8rin.imagetoolbox.core.ui.utils.permission.PermissionUtils.askUserToRequestPermissionExplicitly
 import com.t8rin.imagetoolbox.core.ui.utils.permission.PermissionUtils.checkPermissions
@@ -297,91 +296,6 @@ object ContextUtils {
             if (useDefaultLocale) Locale.getDefault()
             else locale
         ).replaceFirstChar { it.uppercase(locale) }
-    }
-
-    private const val SCREEN_ID_EXTRA = "screen_id"
-    const val SHORTCUT_OPEN_ACTION = "shortcut"
-
-    fun Intent?.getScreenExtra(): Screen? {
-        if (this?.hasExtra(SCREEN_ID_EXTRA) != true) return null
-
-        val screenIdExtra = getIntExtra(SCREEN_ID_EXTRA, -100).takeIf {
-            it != -100
-        } ?: return null
-
-        return Screen.entries.find {
-            it.id == screenIdExtra
-        }
-    }
-
-    fun Intent.putScreenExtra(screen: Screen?) = apply {
-        if (screen == null) {
-            removeExtra(SCREEN_ID_EXTRA)
-        } else {
-            putExtra(SCREEN_ID_EXTRA, screen.id)
-        }
-    }
-
-    fun Intent?.getScreenOpeningShortcut(
-        onNavigate: (Screen) -> Unit,
-    ): Boolean {
-        if (this == null) return false
-
-        val screenExtra = getScreenExtra()
-
-        if (action == SHORTCUT_OPEN_ACTION && screenExtra != null) {
-            onNavigate(screenExtra)
-
-            return true
-        }
-
-        return false
-    }
-
-    suspend fun Context.createScreenShortcut(
-        screen: Screen,
-        tint: Color = Color.Unspecified,
-        onFailure: (Throwable) -> Unit = {},
-    ) = withContext(Dispatchers.Main.immediate) {
-        runCatching {
-            val context = this@createScreenShortcut
-            if (context.canPinShortcuts() && screen.icon != null) {
-                val imageBitmap = screen.icon!!.toImageBitmap(
-                    context = context,
-                    width = 256,
-                    height = 256,
-                    tint = tint.takeOrElse { Color(0xFF5F823E) }
-                )
-
-                val info = ShortcutInfoCompat.Builder(context, screen.id.toString())
-                    .setShortLabel(getString(screen.title))
-                    .setLongLabel(getString(screen.subtitle))
-                    .setIcon(IconCompat.createWithBitmap(imageBitmap.asAndroidBitmap()))
-                    .setIntent(
-                        context.buildIntent(AppActivityClass) {
-                            action = SHORTCUT_OPEN_ACTION
-                            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                            putScreenExtra(screen)
-                        }
-                    )
-                    .build()
-
-                val callbackIntent =
-                    ShortcutManagerCompat.createShortcutResultIntent(context, info)
-
-                val successCallback = PendingIntentCompat.getBroadcast(
-                    context, 0, callbackIntent, 0, false
-                )
-
-                ShortcutManagerCompat.requestPinShortcut(
-                    context,
-                    info,
-                    successCallback?.intentSender
-                )
-            } else {
-                onFailure(UnsupportedOperationException())
-            }
-        }.onFailure(onFailure)
     }
 
     fun Context.canPinShortcuts(): Boolean = runCatching {

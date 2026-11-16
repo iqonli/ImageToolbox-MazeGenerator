@@ -29,7 +29,6 @@ import com.t8rin.imagetoolbox.core.data.saving.io.FileWriteable
 import com.t8rin.imagetoolbox.core.data.saving.io.UriReadable
 import com.t8rin.imagetoolbox.core.domain.PDF
 import com.t8rin.imagetoolbox.core.domain.coroutines.DispatchersHolder
-import com.t8rin.imagetoolbox.core.domain.history.AppHistoryRepository
 import com.t8rin.imagetoolbox.core.domain.image.ImageCompressor
 import com.t8rin.imagetoolbox.core.domain.image.ImageGetter
 import com.t8rin.imagetoolbox.core.domain.image.ImageShareProvider
@@ -59,7 +58,6 @@ internal class AndroidShareProvider @Inject constructor(
     private val imageGetter: ImageGetter<Bitmap>,
     private val imageCompressor: ImageCompressor<Bitmap>,
     private val filenameCreator: Lazy<FilenameCreator>,
-    private val appHistoryRepository: AppHistoryRepository,
     private val failureNotifier: FailureNotifier,
     resourceManager: ResourceManager,
     dispatchersHolder: DispatchersHolder
@@ -302,10 +300,7 @@ internal class AndroidShareProvider @Inject constructor(
             }
         }.toString().also { uri ->
             if (filename.startsWith(PDF)) {
-                appHistoryRepository.registerSuccessfulSave(
-                    savedBytes = uri.toUri().fileSize() ?: 0,
-                    savedFormat = "PDF"
-                )
+                
             }
         }
     }

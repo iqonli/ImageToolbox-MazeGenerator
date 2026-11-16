@@ -176,7 +176,7 @@ internal class KeepAliveForegroundService : Service() {
     private fun buildNotification(): Notification {
         val launchIntent = Intent(
             this, Class.forName(
-                "com.t8rin.imagetoolbox.app.presentation.AppActivity"
+                "com.iqonli.ezmaze.MazeActivity"
             )
         ).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP

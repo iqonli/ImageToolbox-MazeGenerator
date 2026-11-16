@@ -47,9 +47,6 @@ internal fun Project.configureKotlinAndroid(
                 create("foss") {
                     dimension = "app"
                 }
-                create("market") {
-                    dimension = "app"
-                }
             }
         }
 

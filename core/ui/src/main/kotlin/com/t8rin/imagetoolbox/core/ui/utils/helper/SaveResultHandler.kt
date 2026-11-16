@@ -56,7 +56,6 @@ private object SaveResultHandlerImpl : SaveResultHandler {
                     icon = Icons.Outlined.Info,
                     duration = ToastDuration.Short
                 )
-                AppSkippedImagesHost.showSkippedImages(listOfNotNull(saveResult.uri))
             }
 
             is SaveResult.Success -> {
@@ -68,7 +67,6 @@ private object SaveResultHandlerImpl : SaveResultHandler {
                     )
                 }
                 AppToastHost.showConfetti()
-                ReviewHandler.current.requestReview()
             }
 
             SaveResult.Error.MissingPermissions -> AppToastHost.showToast(AppToastHost.PERMISSION)
@@ -88,7 +86,6 @@ private object SaveResultHandlerImpl : SaveResultHandler {
                     message = getString(R.string.skipped_saving),
                     icon = Icons.Outlined.Info
                 )
-                AppSkippedImagesHost.showSkippedImages(listOfNotNull(saveResult.uri))
             }
 
             is SaveResult.Success -> {
@@ -97,7 +94,6 @@ private object SaveResultHandlerImpl : SaveResultHandler {
                     icon = Icons.Rounded.Save
                 )
                 AppToastHost.showConfetti()
-                ReviewHandler.current.requestReview()
             }
 
             SaveResult.Error.MissingPermissions -> AppToastHost.showToast(AppToastHost.PERMISSION)
@@ -162,11 +158,9 @@ private object SaveResultHandlerImpl : SaveResultHandler {
                     icon = Icons.Outlined.Info,
                     duration = ToastDuration.Short
                 )
-                AppSkippedImagesHost.showSkippedImages(skippedImageUris)
             }
 
             AppToastHost.showConfetti()
-            ReviewHandler.current.requestReview()
             return
         }
 
@@ -199,7 +193,6 @@ private object SaveResultHandlerImpl : SaveResultHandler {
                     icon = Icons.Outlined.Info,
                     duration = ToastDuration.Short
                 )
-                AppSkippedImagesHost.showSkippedImages(skippedImageUris)
             }
             return
         }
@@ -210,7 +203,6 @@ private object SaveResultHandlerImpl : SaveResultHandler {
                 icon = Icons.Outlined.Info,
                 duration = ToastDuration.Short
             )
-            AppSkippedImagesHost.showSkippedImages(skippedImageUris)
         }
     }
 

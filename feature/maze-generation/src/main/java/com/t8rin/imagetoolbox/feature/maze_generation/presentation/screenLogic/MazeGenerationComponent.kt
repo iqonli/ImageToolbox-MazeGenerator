@@ -38,7 +38,6 @@ import com.t8rin.imagetoolbox.core.domain.saving.model.SaveResult
 import com.t8rin.imagetoolbox.core.settings.domain.SettingsManager
 import com.t8rin.imagetoolbox.core.ui.utils.BaseHistoryComponent
 import com.t8rin.imagetoolbox.core.ui.utils.helper.AppToastHost
-import com.t8rin.imagetoolbox.core.ui.utils.navigation.Screen
 import com.t8rin.imagetoolbox.feature.maze_generation.data.MazeRecipeStore
 import com.t8rin.imagetoolbox.feature.maze_generation.data.MazeSvgFileFactory
 import com.t8rin.imagetoolbox.feature.maze_generation.domain.*
@@ -58,8 +57,6 @@ class MazeGenerationComponent
 @AssistedInject
 internal constructor(
     @Assisted componentContext: ComponentContext,
-    @Assisted val onGoBack: () -> Unit,
-    @Assisted val onNavigate: (Screen) -> Unit,
     dispatchersHolder: DispatchersHolder,
     private val fileController: FileController,
     private val shareProvider: ImageShareProvider<Bitmap>,
@@ -305,7 +302,7 @@ internal constructor(
         val snapshot = Export(recipe, outputSize, imageFormat, quality, svg)
         isSaving = true
         savingJob =
-            componentScope.launch {
+            trackProgress {
                 try {
                     action(snapshot, scene(snapshot))
                 } catch (e: CancellationException) {
@@ -494,8 +491,6 @@ internal constructor(
     fun interface Factory {
         operator fun invoke(
             componentContext: ComponentContext,
-            onGoBack: () -> Unit,
-            onNavigate: (Screen) -> Unit,
         ): MazeGenerationComponent
     }
 }

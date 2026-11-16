@@ -67,7 +67,6 @@ import com.t8rin.imagetoolbox.core.settings.presentation.model.toUiState
 import com.t8rin.imagetoolbox.core.settings.presentation.provider.LocalSettingsState
 import com.t8rin.imagetoolbox.core.settings.presentation.provider.LocalSimpleSettingsInteractor
 import com.t8rin.imagetoolbox.core.ui.utils.helper.ContextUtils.getStringLocalized
-import com.t8rin.imagetoolbox.core.ui.utils.provider.LocalCurrentScreen
 import com.t8rin.imagetoolbox.core.ui.utils.provider.LocalResourceManager
 import com.t8rin.imagetoolbox.core.ui.utils.provider.LocalScreenSize
 import com.t8rin.imagetoolbox.core.ui.utils.provider.rememberScreenSize
@@ -112,8 +111,7 @@ fun ImageToolboxThemeForPreview(
                             ),
                         LocalSimpleSettingsInteractor provides FakeSettings,
                         LocalResourceManager provides FakeRes,
-                        LocalScreenSize provides rememberScreenSize(),
-                        LocalCurrentScreen provides null
+                        LocalScreenSize provides rememberScreenSize()
                     ) {
                         MaterialExpressiveTheme(
                             motionScheme = CustomMotionScheme,

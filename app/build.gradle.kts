@@ -23,20 +23,19 @@ import com.t8rin.imagetoolbox.OptimizeReleaseApksTask
 plugins {
     alias(libs.plugins.image.toolbox.application)
     alias(libs.plugins.image.toolbox.hilt)
-    id("androidx.baselineprofile")
 }
 
 android {
     val supportedAbi = arrayOf("armeabi-v7a", "arm64-v8a", "x86_64")
 
-    namespace = "com.t8rin.imagetoolbox"
+    namespace = "com.iqonli.ezmaze"
 
     defaultConfig {
         vectorDrawables.useSupportLibrary = true
 
         //Maintained for compatibility with old version
         // Fork builds coexist with upstream. Remove .iqonli here and in file_provider below to restore upstream IDs.
-        applicationId = "ru.tech.imageresizershrinker.iqonli"
+        applicationId = "com.iqonli.ezmaze"
 
         versionCode = libs.versions.versionCode.get().toIntOrNull()
         versionName = System.getenv("VERSION_NAME") ?: libs.versions.versionName.get()
@@ -60,17 +59,14 @@ android {
             versionNameSuffix = "-foss"
             extra.set("gmsEnabled", false)
         }
-        create("market") {
-            dimension = "app"
-            extra.set("gmsEnabled", true)
-        }
+
     }
 
     buildTypes {
         debug {
             applicationIdSuffix = ".debug"
-            resValue("string", "app_launcher_name", "Image Toolbox DEBUG")
-            resValue("string", "file_provider", "com.t8rin.imagetoolbox.fileprovider.debug.iqonli")
+            resValue("string", "app_launcher_name", "ezMaze DEBUG")
+            resValue("string", "file_provider", "com.iqonli.ezmaze.debug.fileprovider")
         }
         release {
             isMinifyEnabled = true
@@ -79,14 +75,10 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            resValue("string", "app_launcher_name", "Image Toolbox")
-            resValue("string", "file_provider", "com.t8rin.imagetoolbox.fileprovider.iqonli")
+            resValue("string", "app_launcher_name", "ezMaze")
+            resValue("string", "file_provider", "com.iqonli.ezmaze.fileprovider")
         }
-        create("benchmark") {
-            initWith(buildTypes.getByName("release"))
-            signingConfig = signingConfigs.getByName("debug")
-            matchingFallbacks += listOf("release")
-        }
+
     }
 
     splits {
@@ -138,37 +130,12 @@ android {
 }
 
 base {
-    archivesName = "image-toolbox-${android.defaultConfig.versionName}"
-}
-
-aboutLibraries {
-    export.excludeFields.addAll("generated")
+    archivesName = "ezMaze-${android.defaultConfig.versionName}"
 }
 
 dependencies {
+    implementation(projects.feature.mazeGeneration)
     debugImplementation(libs.compose.ui.test.manifest)
-    baselineProfile(project(":benchmark"))
-
-    implementation(projects.feature.root)
-    implementation(projects.feature.mediaPicker)
-    implementation(projects.feature.quickTiles)
-
-    implementation(projects.lib.opencvTools)
-    implementation(projects.lib.neuralTools)
-    implementation(projects.lib.collages)
-
-    implementation(libs.bouncycastle.pkix)
-    implementation(libs.bouncycastle.provider)
-    implementation(libs.pdfbox)
-
-    "marketImplementation"(libs.quickie.bundled)
-    "fossImplementation"(libs.quickie.foss)
-}
-
-baselineProfile {
-    automaticGenerationDuringBuild = false
-    dexLayoutOptimization = true
-    mergeIntoMain = true
 }
 
 androidComponents {
@@ -199,23 +166,4 @@ androidComponents {
         optimizeApks.configure { transformationRequest.set(request) }
     }
 
-    beforeVariants(selector().all()) { variantBuilder ->
-        val flavorName = variantBuilder.productFlavors.firstOrNull()?.second.orEmpty()
-        val flavorCap = flavorName.replaceFirstChar(Char::uppercase)
-
-        val gmsEnabled = android.productFlavors
-            .findByName(flavorName)
-            ?.extra
-            ?.get("gmsEnabled") == true
-
-        tasks.configureEach {
-            val isTargetTask = listOf("GoogleServices", "Crashlytics").any { marker ->
-                name.contains(marker)
-            } && name.contains(flavorCap)
-
-            if (isTargetTask) {
-                enabled = gmsEnabled
-            }
-        }
-    }
 }

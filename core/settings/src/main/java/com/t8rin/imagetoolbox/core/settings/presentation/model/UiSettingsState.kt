@@ -247,7 +247,6 @@ fun SettingsState.toUiState(
     randomEmojiKey: Any? = null,
 ): UiSettingsState {
     val context = LocalContext.current
-    context.initEmoji()
 
     val allEmojis = Emoji.allIcons
     val allIconShapes: ImmutableList<IconShape> = IconShape.entries

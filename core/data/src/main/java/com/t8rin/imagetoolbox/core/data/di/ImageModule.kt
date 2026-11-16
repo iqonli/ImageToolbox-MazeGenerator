@@ -20,15 +20,11 @@ package com.t8rin.imagetoolbox.core.data.di
 import android.graphics.Bitmap
 import com.t8rin.imagetoolbox.core.data.image.AndroidImageCompressor
 import com.t8rin.imagetoolbox.core.data.image.AndroidImageGetter
-import com.t8rin.imagetoolbox.core.data.image.AndroidImagePreviewCreator
 import com.t8rin.imagetoolbox.core.data.image.AndroidImageScaler
 import com.t8rin.imagetoolbox.core.data.image.AndroidImageTransformer
 import com.t8rin.imagetoolbox.core.data.image.AndroidShareProvider
-import com.t8rin.imagetoolbox.core.data.image.ImageExportProfilesUseCaseImpl
 import com.t8rin.imagetoolbox.core.domain.image.ImageCompressor
-import com.t8rin.imagetoolbox.core.domain.image.ImageExportProfilesUseCase
 import com.t8rin.imagetoolbox.core.domain.image.ImageGetter
-import com.t8rin.imagetoolbox.core.domain.image.ImagePreviewCreator
 import com.t8rin.imagetoolbox.core.domain.image.ImageScaler
 import com.t8rin.imagetoolbox.core.domain.image.ImageShareProvider
 import com.t8rin.imagetoolbox.core.domain.image.ImageTransformer
@@ -69,12 +65,6 @@ internal interface ImageModule {
 
     @Singleton
     @Binds
-    fun provideImagePreviewCreator(
-        creator: AndroidImagePreviewCreator
-    ): ImagePreviewCreator<Bitmap>
-
-    @Singleton
-    @Binds
     fun provideShareProvider(
         provider: AndroidShareProvider
     ): ShareProvider
@@ -84,11 +74,5 @@ internal interface ImageModule {
     fun provideImageShareProvider(
         provider: AndroidShareProvider
     ): ImageShareProvider<Bitmap>
-
-    @Singleton
-    @Binds
-    fun provideImageExportProfilesUseCase(
-        useCase: ImageExportProfilesUseCaseImpl
-    ): ImageExportProfilesUseCase
 
 }

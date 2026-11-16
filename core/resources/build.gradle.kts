@@ -16,47 +16,16 @@
  */
 
 import com.android.build.api.dsl.LibraryExtension
-import com.t8rin.imagetoolbox.CompressReleaseResourcesTask
-import com.t8rin.imagetoolbox.GenerateHelpResourcesTask
 
 plugins {
     alias(libs.plugins.image.toolbox.library)
     alias(libs.plugins.image.toolbox.compose)
 }
 
-val helpResourcesDirectory = layout.buildDirectory.dir("generated/helpResources/res")
-val generateHelpResources = tasks.register<GenerateHelpResourcesTask>("generateHelpResources") {
-    description = "Generates localized help resources from Weblate strings."
-    sourceDirectory.set(layout.projectDirectory.dir("src/main/res"))
-    outputDirectory.set(helpResourcesDirectory)
-}
-
-androidComponents.onVariants(androidComponents.selector().withBuildType("release")) { variant ->
-    val compressResources = tasks.register<CompressReleaseResourcesTask>(
-        "compress${variant.name.replaceFirstChar(Char::uppercase)}Resources"
-    ) {
-        description = "Compresses help texts and the PDF font for ${variant.name}."
-        sourceDirectory.set(generateHelpResources.flatMap { it.outputDirectory })
-        outputDirectory.set(layout.buildDirectory.dir("generated/compressedResources/${variant.name}"))
-    }
-    variant.sources.res?.addGeneratedSourceDirectory(
-        compressResources,
-        CompressReleaseResourcesTask::outputDirectory
-    )
-}
-
 extensions.configure<LibraryExtension> {
     namespace = "com.t8rin.imagetoolbox.core.resources"
 
     defaultConfig.vectorDrawables.useSupportLibrary = true
-
-    // Keep strings.xml as the Weblate source and package generated resources instead.
-    sourceSets.named("main") {
-        res.directories.apply {
-            clear()
-            add(helpResourcesDirectory.get().asFile.path)
-        }
-    }
 
     buildFeatures {
         buildConfig = true
@@ -72,10 +41,6 @@ extensions.configure<LibraryExtension> {
             buildConfigField("int", "VERSION_CODE", libs.versions.versionCode.get())
         }
     }
-}
-
-tasks.named("preBuild") {
-    dependsOn(generateHelpResources)
 }
 
 dependencies {

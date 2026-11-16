@@ -27,7 +27,7 @@ import com.t8rin.imagetoolbox.core.resources.BuildConfig
 
 val AppActivityClass: Class<*> by lazy {
     Class.forName(
-        "com.t8rin.imagetoolbox.app.presentation.AppActivity"
+        "com.iqonli.ezmaze.MazeActivity"
     )
 }
 
