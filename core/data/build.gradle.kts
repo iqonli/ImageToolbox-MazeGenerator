@@ -25,8 +25,6 @@ android.namespace = "com.t8rin.imagetoolbox.core.data"
 dependencies {
     api(libs.coil)
 
-    api(libs.ktor)
-    api(libs.ktor.logging)
     implementation(libs.coilGif)
     implementation(libs.coilSvg)
     implementation(libs.coil.resvg)
@@ -56,13 +54,10 @@ dependencies {
     implementation(libs.toolbox.qoiCoder)
     implementation(libs.toolbox.jp2decoder)
 
-
-
     implementation(libs.trickle)
 
     implementation(projects.core.domain)
     implementation(projects.core.resources)
-
 
     implementation(projects.core.settings)
     implementation(projects.core.di)

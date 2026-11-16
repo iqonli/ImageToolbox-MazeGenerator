@@ -17,6 +17,9 @@
 
 package com.iqonli.ezmaze
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -24,6 +27,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import com.arkivanov.decompose.retainedComponent
 import com.t8rin.imagetoolbox.core.resources.Icons
 import com.t8rin.imagetoolbox.core.resources.R
@@ -41,6 +46,23 @@ import javax.inject.Inject
 class MazeActivity : ComposeActivity() {
     @Inject lateinit var factory: MazeGenerationComponent.Factory
     private val component by lazy { retainedComponent { factory(it) } }
+
+    override fun onFirstLaunch() {
+        super.onFirstLaunch()
+        if (
+            Build.VERSION.SDK_INT <= Build.VERSION_CODES.P &&
+                ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
+                1,
+            )
+        }
+    }
 
     @Composable
     override fun Content() {

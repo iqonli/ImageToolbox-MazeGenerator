@@ -17,68 +17,61 @@
 
 package com.t8rin.imagetoolbox.core.data.coil
 
-import coil3.network.HttpException
 import coil3.util.Logger
 import com.t8rin.imagetoolbox.core.resources.BuildConfig
-import com.t8rin.imagetoolbox.core.utils.makeLog
-import io.ktor.http.URLParserException
-import kotlinx.coroutines.CancellationException
-import java.io.IOException
 import com.t8rin.imagetoolbox.core.utils.Logger as RealLogger
+import com.t8rin.imagetoolbox.core.utils.makeLog
+import java.io.IOException
+import kotlinx.coroutines.CancellationException
 
 internal class CoilLogger : Logger {
 
     override var minLevel = if (BuildConfig.DEBUG) Logger.Level.Debug else Logger.Level.Warn
 
-    override fun log(
-        tag: String,
-        level: Logger.Level,
-        message: String?,
-        throwable: Throwable?
-    ) {
+    override fun log(tag: String, level: Logger.Level, message: String?, throwable: Throwable?) {
         if (level < minLevel) return
 
         val logLevel = throwable?.imageLoadLogLevel() ?: level.toLogger()
-        message?.takeIf {
-            "NullRequestData" !in it && "PDF" !in it
-        }?.makeLog(tag, logLevel)
+        message?.takeIf { "NullRequestData" !in it && "PDF" !in it }?.makeLog(tag, logLevel)
 
-        throwable?.takeIf {
-            "The request's data is null" !in it.message.orEmpty() && "PDF" !in it.message.orEmpty()
-        }?.let { it.makeLog(tag, it.imageLoadLogLevel()) }
+        throwable
+            ?.takeIf {
+                "The request's data is null" !in it.message.orEmpty() &&
+                    "PDF" !in it.message.orEmpty()
+            }
+            ?.let { it.makeLog(tag, it.imageLoadLogLevel()) }
     }
 
-    private fun Logger.Level.toLogger(): RealLogger.Level = when (this) {
-        Logger.Level.Verbose -> RealLogger.Level.Verbose
-        Logger.Level.Debug -> RealLogger.Level.Debug
-        Logger.Level.Info -> RealLogger.Level.Info
-        Logger.Level.Warn -> RealLogger.Level.Warn
-        Logger.Level.Error -> RealLogger.Level.Error
-    }
-
+    private fun Logger.Level.toLogger(): RealLogger.Level =
+        when (this) {
+            Logger.Level.Verbose -> RealLogger.Level.Verbose
+            Logger.Level.Debug -> RealLogger.Level.Debug
+            Logger.Level.Info -> RealLogger.Level.Info
+            Logger.Level.Warn -> RealLogger.Level.Warn
+            Logger.Level.Error -> RealLogger.Level.Error
+        }
 }
 
 internal fun Throwable.imageLoadLogLevel(): RealLogger.Level {
-    val causes = generateSequence(this) { it.cause }
-        .takeWhile(mutableSetOf<Throwable>()::add)
-        .toList()
+    val causes =
+        generateSequence(this) { it.cause }.takeWhile(mutableSetOf<Throwable>()::add).toList()
     if (causes.any { it is Error }) return RealLogger.Level.Error
 
     return when {
-        causes.any { it is IOException || it is SecurityException || it is CancellationException } ->
-            RealLogger.Level.Warn
+        causes.any {
+            it is IOException || it is SecurityException || it is CancellationException
+        } -> RealLogger.Level.Warn
 
-        this is HttpException || this is URLParserException -> RealLogger.Level.Warn
         message.orEmpty().let {
             it.startsWith("BitmapFactory returned a null bitmap") ||
-                    it.startsWith("Failed to create image decoder") ||
-                    it.startsWith("Unable to create a decoder") ||
-                    it == "SVG document is empty" ||
-                    it.startsWith("XML parser problem") ||
-                    it == "Could not scale to target size!" ||
-                    it.startsWith("Only owner is able to interact with pending/trashed item") ||
-                    (it.startsWith("Failed to determine if ") &&
-                            "java.io.FileNotFoundException: Missing file" in it)
+                it.startsWith("Failed to create image decoder") ||
+                it.startsWith("Unable to create a decoder") ||
+                it == "SVG document is empty" ||
+                it.startsWith("XML parser problem") ||
+                it == "Could not scale to target size!" ||
+                it.startsWith("Only owner is able to interact with pending/trashed item") ||
+                (it.startsWith("Failed to determine if ") &&
+                    "java.io.FileNotFoundException: Missing file" in it)
         } -> RealLogger.Level.Warn
 
         else -> RealLogger.Level.Error

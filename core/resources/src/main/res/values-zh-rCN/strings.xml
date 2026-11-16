@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Adapted from Image Toolbox, Copyright 2026 T8RIN, Apache-2.0. -->
 <resources>
-  <string name="about_app">关于应用</string>
   <string name="activate_files">你禁用了“文件”应用，请先激活该应用以使用该功能。</string>
   <string name="activities">活动</string>
   <string name="add_new_folder">添加新文件夹</string>
@@ -13,14 +12,12 @@
   <string name="aspect_ratio">纵横比</string>
   <string name="auto">自动</string>
   <string name="background_color">背景色</string>
-  <string name="backup_and_restore">备份和恢复</string>
   <string name="bartlett">Bartlett</string>
   <string name="bartlett_hann">Bartlett-Hann</string>
   <string name="bartlett_hann_sub">一种结合了Bartlett窗和Hann窗的混合窗函数，用于减少信号处理中的频谱泄漏</string>
   <string name="bartlett_sub">信号处理中用于减少频谱泄漏的三角窗函数</string>
   <string name="basic">Basic</string>
   <string name="basic_sub">最简单的安卓缩放模式，几乎适用于所有应用程序</string>
-  <string name="behavior">行为</string>
   <string name="bicubic">Bicubic</string>
   <string name="bicubic_sub">更好的缩放方法包括 Lanczos 重采样和 Mitchell-Netravali 滤波器</string>
   <string name="bilinear">Bilinear</string>
@@ -47,7 +44,6 @@
   <string name="cell_width">单元格宽度</string>
   <string name="channels_configuration">通道配置</string>
   <string name="chroma_subsampling">色度子采样</string>
-  <string name="clipboard">剪切板</string>
   <string name="clipboard_data_is_too_large">剪贴板数据过大</string>
   <string name="clipboard_paste_invalid_color_code">粘贴一个有效的aRGB颜色代码</string>
   <string name="clipboard_paste_invalid_empty">无可粘贴的图片</string>
@@ -55,8 +51,6 @@
   <string name="color">颜色</string>
   <string name="color_copied">颜色代码已复制</string>
   <string name="compression_type">压缩方式</string>
-  <string name="confetti">纸屑特效</string>
-  <string name="contact_me">联系我</string>
   <string name="copied">已复制到剪贴板</string>
   <string name="copy">复制</string>
   <string name="corrupted_file_or_not_a_backup">文件已损坏或不是备份文件</string>
@@ -65,23 +59,19 @@
   <string name="custom">自定义</string>
   <string name="custom_filename">自定义文件名</string>
   <string name="custom_filename_sub">选择用于保存当前图片的位置和文件名</string>
-  <string name="customization">自定义</string>
   <string name="data_is_too_large">数据太大，无法完成此操作</string>
   <string name="data_is_too_large_to_copy">数据过大，无法复制</string>
   <string name="default_value">默认值</string>
-  <string name="default_values">默认值</string>
   <string name="delete">删除</string>
   <string name="delete_originals_after_save">保存后删除原文件</string>
   <string name="delete_originals_after_save_sub">只有成功处理的源文件才会被删除</string>
   <string name="device_storage">设备存储</string>
   <string name="disabled">禁用</string>
-  <string name="draw">画板</string>
   <string name="edit">编辑</string>
   <string name="effort">压缩尝试次数</string>
   <string name="effort_sub">值为%1$s意味着快速压缩，导致文件大小相对较大。 %2$s表示压缩速度较慢，文件较小。</string>
   <string name="embedded_picker">嵌入式选取器</string>
   <string name="embedded_picker_sub">Image Toolbox的图片选择器</string>
-  <string name="emoji">表情符号</string>
   <string name="emotions">表情</string>
   <string name="error_while_saving">尝试保存时出错，请尝试更改输出文件夹</string>
   <string name="ewa_blackman">Blackman EWA</string>
@@ -187,7 +177,6 @@
   <string name="file_is_corrupted_or_unsupported">文件已损坏、不完整或格式不受支持</string>
   <string name="file_is_too_large">文件对于此存储位置或操作来说太大</string>
   <string name="file_not_found">找不到该文件。它可能已被移动、删除或不再可用</string>
-  <string name="filename">文件名</string>
   <string name="filename_already_exists">目标文件夹中已存在名为“%1$s”的文件。现有文件未更改。</string>
   <string name="filename_is_not_set">未设置文件名</string>
   <string name="folder">输出目录</string>
@@ -226,7 +215,6 @@
   <string name="image_not_saved">保存</string>
   <string name="image_not_saved_sub">如果现在退出，所有未保存的更改都将丢失</string>
   <string name="image_size_warning">尝试以指定的宽度和高度保存图片可能会导致内存溢出错误。请自行承担风险操作</string>
-  <string name="image_source">图片来源</string>
   <string name="images_overwritten">在原位置覆盖图片</string>
   <string name="invalid_password_or_not_encrypted">密码无效或选中的文件未加密</string>
   <string name="jhm17_polish">系数抛光</string>
@@ -256,7 +244,6 @@
   <string name="lanczos_6_jinc_sub">使用 Jinc 函数改进图片重采样质量的Lanczos 6 滤波器变体</string>
   <string name="lanczos_6_sub">阶数为 6 的 Lanczos 重采样滤波器，可提供更清晰、更准确的图片缩放效果</string>
   <string name="language">语言</string>
-  <string name="layout">布局</string>
   <string name="line_width">线宽</string>
   <string name="linear">线性</string>
   <string name="loading">正在加载……</string>
@@ -366,13 +353,8 @@
   <string name="network_connection_interrupted">连接中断。检查您的连接并重试</string>
   <string name="network_host_unreachable">无法到达服务器。检查您的互联网连接、VPN 或地址，然后重试</string>
   <string name="network_invalid_response">服务器返回无效响应。稍后再试</string>
-  <string name="network_request_rejected">服务器拒绝了该请求。检查您的访问或登录详细信息，然后重试</string>
-  <string name="network_resource_not_found">在服务器上找不到请求的资源</string>
   <string name="network_secure_connection_failed">无法建立安全连接。检查日期和时间、VPN 或网络设置，然后重试</string>
-  <string name="network_server_error">服务器遇到错误。稍后再试</string>
   <string name="network_timeout">连接超时。检查您的连接并重试</string>
-  <string name="network_too_many_requests">发送的请求过多。稍等片刻，然后重试</string>
-  <string name="night_mode">夜间模式</string>
   <string name="no_such_directory">未找到 \"%1$s\"目录，我们已将其切换至默认目录，请重新保存文件</string>
   <string name="objects">物体</string>
   <string name="ok">确定</string>
@@ -389,7 +371,6 @@
   <string name="photo_picker_sub">出现在屏幕底部的安卓新版照片选择器可能只适用于安卓12+系统，它接收EXIF元数据时有问题</string>
   <string name="pick_image">选择图片以开始</string>
   <string name="pick_image_alt">选择图片</string>
-  <string name="presets">预设</string>
   <string name="primary_lines">主要线路</string>
   <string name="primary_lines_sub">每五行添加较粗的线</string>
   <string name="processing">处理中</string>
@@ -398,7 +379,6 @@
   <string name="quadric_sub">一种使用二次函数进行插值的方法，可提供平滑、连续的结果</string>
   <string name="quality">质量</string>
   <string name="randomize_seed_after_save">保存后随机化种子</string>
-  <string name="raw_development">RAW开发</string>
   <string name="recently_used">最近使用</string>
   <string name="robidoux">Robidoux</string>
   <string name="robidoux_sharp">Robidoux Sharp</string>
@@ -414,14 +394,11 @@
   <string name="saved_to_without_filename">已保存到%1$s文件夹</string>
   <string name="saving_almost_complete">保存快要完成了。现在取消将需要重新开始保存</string>
   <string name="scale_mode">缩放模式</string>
-  <string name="screen">屏幕</string>
   <string name="screen_content_coding">屏幕内容编码</string>
   <string name="screen_content_coding_heic_sub">优化屏幕截图、文本和图形的编码。大多数 HEVC 解码器不支持 RExt SCC 扩展</string>
   <string name="screen_content_coding_sub">优化屏幕截图、文本和图形的编码</string>
-  <string name="secondary_customization">二次定制</string>
   <string name="seed">种子</string>
   <string name="selected_color">已选择颜色</string>
-  <string name="shadows">阴影</string>
   <string name="share">分享</string>
   <string name="shuffle">随机播放</string>
   <string name="sigmoidal">乙字形</string>
@@ -440,7 +417,6 @@
   <string name="spline64">Spline 64</string>
   <string name="spline64_sub">基于样条线的插值方法，使用 64 抽头滤镜提供平滑结果</string>
   <string name="stay">取消</string>
-  <string name="storage">存储</string>
   <string name="storage_is_full">没有足够的可用存储空间来完成此操作。释放一些空间并重试</string>
   <string name="storage_is_read_only">该存储位置是只读的。选择其他位置并重试</string>
   <string name="symbols">符号</string>
@@ -598,12 +574,8 @@
   <string name="tag_y_cb_cr_positioning">色度抽样位置</string>
   <string name="tag_y_cb_cr_sub_sampling">色度抽样</string>
   <string name="tag_y_resolution">Y 分辨率</string>
-  <string name="text">文本</string>
   <string name="tiff_compression_scheme">TIFF 压缩方案</string>
-  <string name="tools_arrangement">工具排列</string>
   <string name="travels_and_places">旅游和地方</string>
-  <string name="updates">更新</string>
-  <string name="vibration">震动</string>
   <string name="wait">等待</string>
   <string name="welch">Welch</string>
   <string name="welch_sub">一种窗口函数，旨在提供良好的频率分辨率，减少频谱泄漏，常用于信号处理应用中</string>

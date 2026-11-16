@@ -37,9 +37,7 @@ tasks.withType<KotlinCompile>().configureEach {
 }
 
 dependencies {
-    implementation(libs.aaptcompiler)
     implementation(libs.apksig)
-    implementation(libs.xz)
     compileOnly(libs.agp.gradle)
     compileOnly(libs.kotlin.gradle)
     compileOnly(libs.detekt.gradle)

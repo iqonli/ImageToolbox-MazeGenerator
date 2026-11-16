@@ -49,33 +49,30 @@ dependencies {
     implementation(projects.core.di)
     implementation(projects.core.settings)
 
-
     // Navigation
     api(libs.decompose)
     api(libs.decomposeExtensions)
 
-    //AndroidX
+    // AndroidX
     api(libs.activityCompose)
     api(libs.splashScreen)
     api(libs.appCompat)
     api(libs.androidx.documentfile)
     api(libs.androidx.graphics.path)
 
-    //Konfetti
+    // Konfetti
     api(libs.konfetti.compose)
 
-    //Coil
+    // Coil
     api(libs.coilCompose)
-    api(libs.ktor)
 
-    //Modules
+    // Modules
     api(projects.lib.dynamicTheme)
     api(projects.lib.colors)
     api(projects.lib.gesture)
     api(projects.lib.modalsheet)
     api(projects.lib.zoomable)
     implementation(projects.lib.cropper)
-
 
     api(libs.reorderable)
 
@@ -90,9 +87,6 @@ dependencies {
     implementation(libs.datastore.preferences.android)
     implementation(libs.datastore.core.android)
     api(libs.material)
-
-
-
 
     api(libs.backdrop)
     api(libs.capsule)

@@ -20,39 +20,32 @@ package com.t8rin.imagetoolbox.core.data.saving.io
 import android.content.Context
 import android.net.Uri
 import android.os.ParcelFileDescriptor
-import io.ktor.utils.io.charsets.Charset
 import java.io.FileOutputStream
+import java.nio.charset.Charset
 
+class UriReadable(private val uri: Uri, private val context: Context) :
+    StreamReadable by StreamReadable(
+        inputStream = context.contentResolver.openInputStream(uri) ?: ByteArray(0).inputStream()
+    )
 
-class UriReadable(
-    private val uri: Uri,
-    private val context: Context
-) : StreamReadable by StreamReadable(
-    inputStream = context.contentResolver.openInputStream(uri) ?: ByteArray(0).inputStream()
-)
-
-class UriWriteable private constructor(
-    outputStream: FileOutputStream
-) : StreamWriteable by StreamWriteable(outputStream),
+class UriWriteable private constructor(outputStream: FileOutputStream) :
+    StreamWriteable by StreamWriteable(outputStream),
     SeekableWriteable by SeekableWriteable(outputStream.channel) {
 
-    constructor(uri: Uri, context: Context) : this(
-        outputStream = ParcelFileDescriptor.AutoCloseOutputStream(
-            context.contentResolver.openFileDescriptor(uri, "rwt")
-                ?: error("Cannot open output Uri")
-        )
+    constructor(
+        uri: Uri,
+        context: Context,
+    ) : this(
+        outputStream =
+            ParcelFileDescriptor.AutoCloseOutputStream(
+                context.contentResolver.openFileDescriptor(uri, "rwt")
+                    ?: error("Cannot open output Uri")
+            )
     )
 }
 
-class ByteArrayReadable(
-    private val byteArray: ByteArray
-) : StreamReadable by StreamReadable(
-    inputStream = byteArray.inputStream()
-)
+class ByteArrayReadable(private val byteArray: ByteArray) :
+    StreamReadable by StreamReadable(inputStream = byteArray.inputStream())
 
-class StringReadable(
-    private val string: String,
-    private val charset: Charset = Charsets.UTF_8
-) : StreamReadable by ByteArrayReadable(
-    byteArray = string.toByteArray(charset)
-)
+class StringReadable(private val string: String, private val charset: Charset = Charsets.UTF_8) :
+    StreamReadable by ByteArrayReadable(byteArray = string.toByteArray(charset))

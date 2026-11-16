@@ -44,7 +44,6 @@ extensions.configure<LibraryExtension> {
 }
 
 dependencies {
-    implementation(libs.xz)
     implementation(libs.material)
     implementation(libs.androidxCore)
     implementation(libs.appCompat)

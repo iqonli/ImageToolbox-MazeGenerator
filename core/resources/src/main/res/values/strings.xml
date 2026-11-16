@@ -1,6 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-  <string name="about_app">About app</string>
   <string name="activate_files">You disabled Files app, activate it to use this feature</string>
   <string name="activities">Activities</string>
   <string name="add_new_folder">Add New Folder</string>
@@ -13,14 +12,12 @@
   <string name="aspect_ratio">Aspect ratio</string>
   <string name="auto">Auto</string>
   <string name="background_color">Background color</string>
-  <string name="backup_and_restore">Backup and restore</string>
   <string name="bartlett">Bartlett</string>
   <string name="bartlett_hann">Bartlett-Hann</string>
   <string name="bartlett_hann_sub">A hybrid window function combining the Bartlett and Hann windows, used to reduce spectral leakage in signal processing</string>
   <string name="bartlett_sub">A triangular window function used in signal processing to reduce spectral leakage</string>
   <string name="basic">Basic</string>
   <string name="basic_sub">Simplest android scaling mode that used in almost all apps</string>
-  <string name="behavior">Behavior</string>
   <string name="bicubic">Bicubic</string>
   <string name="bicubic_sub">Better scaling methods include Lanczos resampling and Mitchell-Netravali filters</string>
   <string name="bilinear">Bilinear</string>
@@ -47,7 +44,6 @@
   <string name="cell_width">Cell Width</string>
   <string name="channels_configuration">Channels Configuration</string>
   <string name="chroma_subsampling">Chroma subsampling</string>
-  <string name="clipboard">Clipboard</string>
   <string name="clipboard_data_is_too_large">Clipboard data is too large</string>
   <string name="clipboard_paste_invalid_color_code">Paste a valid aRGB color code</string>
   <string name="clipboard_paste_invalid_empty">Nothing to paste</string>
@@ -55,8 +51,6 @@
   <string name="color">Color</string>
   <string name="color_copied">Color copied</string>
   <string name="compression_type">Compression Type</string>
-  <string name="confetti">Confetti</string>
-  <string name="contact_me">Contact me</string>
   <string name="copied">Copied to clipboard</string>
   <string name="copy">Copy</string>
   <string name="corrupted_file_or_not_a_backup">Corrupted file or not a backup</string>
@@ -65,24 +59,20 @@
   <string name="custom">Custom</string>
   <string name="custom_filename">Custom Filename</string>
   <string name="custom_filename_sub">Select location and filename which are will be used to save current image</string>
-  <string name="customization">Customization</string>
   <string name="data_is_too_large">The data is too large to complete this action</string>
   <string name="data_is_too_large_to_copy">Data is too large to copy</string>
   <string name="default_folder" translatable="false">Documents/ezMaze</string>
   <string name="default_value">Default Value</string>
-  <string name="default_values">Default Values</string>
   <string name="delete">Delete</string>
   <string name="delete_originals_after_save">Delete original files after saving</string>
   <string name="delete_originals_after_save_sub">Only successfully processed source files will be deleted</string>
   <string name="device_storage">Device storage</string>
   <string name="disabled">Disabled</string>
-  <string name="draw">Draw</string>
   <string name="edit">Edit</string>
   <string name="effort">Effort</string>
   <string name="effort_sub">A value of %1$s means a fast compression, resulting in a relatively large file size. %2$s means a slower compression, resulting in a smaller file.</string>
   <string name="embedded_picker">Embedded Picker</string>
   <string name="embedded_picker_sub">Image Toolbox\'s image picker</string>
-  <string name="emoji">Emoji</string>
   <string name="emotions">Emotions</string>
   <string name="error_while_saving">Error while saving attempt, try to change output folder</string>
   <string name="ewa_blackman">Blackman EWA</string>
@@ -105,7 +95,6 @@
   <string name="ewa_robidoux_sharp">Robidoux Sharp EWA</string>
   <string name="ewa_robidoux_sharp_sub">Elliptical Weighted Average (EWA) variant of the Robidoux Sharp filter for sharper results</string>
   <string name="ewa_robidoux_sub">Elliptical Weighted Average (EWA) variant of the Robidoux filter for high-quality resampling</string>
-  <string name="exif" translatable="false">EXIF</string>
   <string name="exit">Exit</string>
   <string name="export_profile_behance_lightbox_image">Lightbox image</string>
   <string name="export_profile_behance_project_cover">Project cover</string>
@@ -189,10 +178,8 @@
   <string name="file_is_corrupted_or_unsupported">The file is damaged, incomplete, or its format is not supported</string>
   <string name="file_is_too_large">The file is too large for this storage location or operation</string>
   <string name="file_not_found">The file could not be found. It may have been moved, deleted, or is no longer available</string>
-  <string name="filename">Filename</string>
   <string name="filename_already_exists">A file named “%1$s” already exists in the target folder. The existing file was not changed.</string>
   <string name="filename_is_not_set">Filename is not set</string>
-  <string name="firebase" translatable="false">Firebase</string>
   <string name="folder">Output folder</string>
   <string name="folder_picker">Folder</string>
   <string name="folder_picker_sub">Select all images from a folder and its subfolders</string>
@@ -229,7 +216,6 @@
   <string name="image_not_saved">Saving</string>
   <string name="image_not_saved_sub">All unsaved changes will be lost, if you exit now</string>
   <string name="image_size_warning">Trying to save the image with the given width and height may cause an out of memory error. Do this at your own risk.</string>
-  <string name="image_source">Image source</string>
   <string name="images_overwritten">Images overwritten at original destination</string>
   <string name="invalid_password_or_not_encrypted">Invalid password or chosen file is not encrypted</string>
   <string name="jhm17_polish">Coefficient Polish</string>
@@ -259,7 +245,6 @@
   <string name="lanczos_6_jinc_sub">A variant of the Lanczos 6 filter using a Jinc function for improved image resampling quality</string>
   <string name="lanczos_6_sub">A Lanczos resampling filter with a higher order of 6, providing sharper and more accurate image scaling</string>
   <string name="language">Language</string>
-  <string name="layout">Layout</string>
   <string name="line_width">Line width</string>
   <string name="linear">Linear</string>
   <string name="loading">Loading…</string>
@@ -385,13 +370,8 @@
   <string name="network_connection_interrupted">The connection was interrupted. Check your connection and try again</string>
   <string name="network_host_unreachable">Couldn’t reach the server. Check your internet connection, VPN, or the address and try again</string>
   <string name="network_invalid_response">The server returned an invalid response. Try again later</string>
-  <string name="network_request_rejected">The server rejected the request. Check your access or sign-in details and try again</string>
-  <string name="network_resource_not_found">The requested resource was not found on the server</string>
   <string name="network_secure_connection_failed">Couldn’t establish a secure connection. Check the date and time, VPN, or network settings and try again</string>
-  <string name="network_server_error">The server encountered an error. Try again later</string>
   <string name="network_timeout">The connection timed out. Check your connection and try again</string>
-  <string name="network_too_many_requests">Too many requests were sent. Wait a moment and try again</string>
-  <string name="night_mode">Night Mode</string>
   <string name="no_such_directory">No \"%1$s\" directory found, we switched it to default one, please save the file again</string>
   <string name="objects">Objects</string>
   <string name="ok">OK</string>
@@ -408,7 +388,6 @@
   <string name="photo_picker_sub">Android modern photo picker which appears at the bottom of the screen, may work only on android 12+. Has issues receiving EXIF metadata</string>
   <string name="pick_image">Pick image to start</string>
   <string name="pick_image_alt">Pick Image</string>
-  <string name="presets">Presets</string>
   <string name="primary_lines">Primary Lines</string>
   <string name="primary_lines_sub">Adds thicker line every fifth line</string>
   <string name="processing">Processing</string>
@@ -417,7 +396,6 @@
   <string name="quadric_sub">A method that uses a quadratic function for interpolation, providing smooth and continuous results</string>
   <string name="quality">Quality</string>
   <string name="randomize_seed_after_save">Randomize seed after saving</string>
-  <string name="raw_development">RAW development</string>
   <string name="recently_used">Recently Used</string>
   <string name="robidoux">Robidoux</string>
   <string name="robidoux_sharp">Robidoux Sharp</string>
@@ -433,14 +411,11 @@
   <string name="saved_to_without_filename">Saved to %1$s folder</string>
   <string name="saving_almost_complete">Saving almost complete. Cancelling now will require saving again.</string>
   <string name="scale_mode">Scale mode</string>
-  <string name="screen">Screen</string>
   <string name="screen_content_coding">Screen content coding</string>
   <string name="screen_content_coding_heic_sub">Optimizes encoding for screenshots, text, and graphics. Most HEVC decoders do not support the RExt SCC extension</string>
   <string name="screen_content_coding_sub">Optimizes encoding for screenshots, text, and graphics</string>
-  <string name="secondary_customization">Secondary customization</string>
   <string name="seed">Seed</string>
   <string name="selected_color">Selected Color</string>
-  <string name="shadows">Shadows</string>
   <string name="share">Share</string>
   <string name="shuffle">Shuffle</string>
   <string name="sigmoidal">Sigmoidal</string>
@@ -459,7 +434,6 @@
   <string name="spline64">Spline 64</string>
   <string name="spline64_sub">A spline-based interpolation method that provides smooth results using a 64-tap filter</string>
   <string name="stay">Stay</string>
-  <string name="storage">Storage</string>
   <string name="storage_is_full">There isn’t enough free storage to complete this action. Free up some space and try again</string>
   <string name="storage_is_read_only">This storage location is read-only. Choose another location and try again</string>
   <string name="symbols">Symbols</string>
@@ -617,12 +591,8 @@
   <string name="tag_y_cb_cr_positioning">Y Cb Cr Positioning</string>
   <string name="tag_y_cb_cr_sub_sampling">Y Cb Cr Sub Sampling</string>
   <string name="tag_y_resolution">Y Resolution</string>
-  <string name="text">Text</string>
   <string name="tiff_compression_scheme">TIFF compression scheme</string>
-  <string name="tools_arrangement">Tools Arrangement</string>
   <string name="travels_and_places">Travels and Places</string>
-  <string name="updates">Updates</string>
-  <string name="vibration">Vibration</string>
   <string name="wait">Wait</string>
   <string name="welch">Welch</string>
   <string name="welch_sub">A window function designed to give good frequency resolution with reduced spectral leakage, often used in signal processing applications</string>

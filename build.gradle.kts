@@ -40,14 +40,7 @@ allprojects {
             substitute(module("com.caverock:androidsvg-aar:1.4"))
                 .using(module("com.github.deckerst:androidsvg:cc9d59a88f"))
 
-            listOf(
-                "org.bouncycastle:bcpkix",
-                "org.bouncycastle:bcprov",
-                "org.bouncycastle:bcutil"
-            ).forEach { dependency ->
-                substitute(module("${dependency}-jdk15to18"))
-                    .using(module("${dependency}-jdk18on:${libs.versions.bouncycastle.get()}"))
-            }
+
         }
     }
 }

@@ -19,64 +19,46 @@ package com.t8rin.imagetoolbox.core.ui.utils.helper
 
 import android.content.Context
 import android.content.Intent
-import android.provider.MediaStore
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import com.t8rin.imagetoolbox.core.domain.utils.Flavor
 import com.t8rin.imagetoolbox.core.resources.BuildConfig
 
-val AppActivityClass: Class<*> by lazy {
-    Class.forName(
-        "com.iqonli.ezmaze.MazeActivity"
-    )
-}
+val AppActivityClass: Class<*> by lazy { Class.forName("com.iqonli.ezmaze.MazeActivity") }
 
-val MediaPickerActivityClass: Class<*> by lazy {
-    Class.forName(
-        "com.t8rin.imagetoolbox.feature.media_picker.presentation.MediaPickerActivity"
-    )
-}
-
+// No embedded gallery is shipped in ezMaze. Existing picker clients use Android's document UI.
 fun createMediaPickerIntent(
     context: Context,
     allowMultiple: Boolean,
     currentAccent: Color,
-    imageExtension: String
-): Intent = Intent(
-    Intent.ACTION_PICK,
-    MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-    context,
-    MediaPickerActivityClass
-).apply {
-    setDataAndType(
-        MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-        "image/$imageExtension"
-    )
-    if (allowMultiple) {
-        putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
+    imageExtension: String,
+): Intent =
+    Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+        type = "image/$imageExtension"
+        addCategory(Intent.CATEGORY_OPENABLE)
+        putExtra(Intent.EXTRA_ALLOW_MULTIPLE, allowMultiple)
+        addFlags(
+            Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION
+        )
     }
-    putExtra(ColorSchemeName, currentAccent.toArgb())
-}
 
 val AppVersionPreRelease: String by lazy {
-    BuildConfig.VERSION_NAME
-        .replace(BuildConfig.FLAVOR, "")
+    BuildConfig.VERSION_NAME.replace(BuildConfig.FLAVOR, "")
         .split("-")
         .takeIf { it.size > 1 }
-        ?.drop(1)?.first()
+        ?.drop(1)
+        ?.first()
         ?.takeWhile { it.isLetter() } ?: ""
 }
 
 val AppVersionPreReleaseFlavored: String by lazy {
     if (!Flavor.isFoss()) {
-        AppVersionPreRelease
-    } else {
-        "${BuildConfig.FLAVOR} $AppVersionPreRelease"
-    }.uppercase()
+            AppVersionPreRelease
+        } else {
+            "${BuildConfig.FLAVOR} $AppVersionPreRelease"
+        }
+        .uppercase()
 }
 
-val AppVersion: String by lazy {
-    BuildConfig.VERSION_NAME + if (Flavor.isFoss()) "-foss" else ""
-}
+val AppVersion: String by lazy { BuildConfig.VERSION_NAME + if (Flavor.isFoss()) "-foss" else "" }
 
 const val ColorSchemeName = "scheme"
