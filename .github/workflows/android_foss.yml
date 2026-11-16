@@ -6,6 +6,10 @@ on:
     branches:
       - feature/maze-generator
 
+concurrency:
+  group: ezmaze-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
 
@@ -16,6 +20,16 @@ jobs:
         uses: pierotofy/set-swap-space@master
         with:
           swap-size-gb: 10
+
+      - name: Stop superseded verification runs
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          for previous in $(gh run list --repo "$GITHUB_REPOSITORY" --workflow android_foss.yml --branch "$GITHUB_REF_NAME" --status in_progress --json databaseId --jq '.[].databaseId'); do
+            if [ "$previous" -lt "$GITHUB_RUN_ID" ]; then
+              gh run cancel "$previous" --repo "$GITHUB_REPOSITORY" || echo "Could not cancel superseded run $previous with the existing token permissions"
+            fi
+          done
 
       - uses: actions/checkout@v7
 
@@ -98,48 +112,6 @@ jobs:
             "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$apk" | grep "package: name='com.iqonli.ezmaze'"
           done
 
-      - name: Enable emulator acceleration
-        run: |
-          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
-          sudo udevadm control --reload-rules
-          sudo udevadm trigger --name-match=kvm
-
-      - name: Verify release startup and SVG saving on Android
-        uses: reactivecircus/android-emulator-runner@v2.38.0
-        with:
-          api-level: 35
-          target: google_apis
-          arch: x86_64
-          disable-animations: true
-          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -no-snapshot -camera-back none
-          script: |
-            adb install -r app/build/outputs/apk/foss/release/*x86_64*.apk
-            adb shell input keyevent KEYCODE_WAKEUP
-            adb shell wm dismiss-keyguard
-            adb shell input keyevent 82
-            adb logcat -c
-            adb shell am start -W -n com.iqonli.ezmaze/.MazeActivity
-            sleep 5
-            adb shell pidof com.iqonli.ezmaze || (adb logcat -d -s AndroidRuntime && exit 1)
-            adb shell uiautomator dump /sdcard/ezmaze-window.xml
-            adb shell dumpsys window | grep -E 'mCurrentFocus|mFocusedApp' || true
-            adb shell cat /sdcard/ezmaze-window.xml
-            adb exec-out screencap -p > "$RUNNER_TEMP/ezmaze-startup.png"
-            adb shell cat /sdcard/ezmaze-window.xml | grep 'ezMaze'
-            bash ./gradlew :core:data:connectedFossDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.t8rin.imagetoolbox.core.data.saving.SvgSavingInstrumentedTest --stacktrace
-            bash ./gradlew :feature:maze-generation:connectedFossDebugAndroidTest --stacktrace
-
-      - name: Upload Android verification results
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: ezMaze-android-verification
-          path: |
-            ${{ runner.temp }}/ezmaze-startup.png
-            core/data/build/outputs/androidTest-results/**
-            feature/maze-generation/build/outputs/androidTest-results/**
-          if-no-files-found: warn
-
       - name: Prepare individual APKs and build notes
         shell: bash
         run: |
@@ -190,6 +162,56 @@ jobs:
           path: ${{ runner.temp }}/maze-apks/ezMaze-universal.apk
           archive: false
           if-no-files-found: error
+
+
+      - name: Release compiler memory before starting Android
+        run: bash ./gradlew --stop
+
+      - name: Enable emulator acceleration
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Verify release startup and SVG saving on Android
+        timeout-minutes: 22
+        uses: reactivecircus/android-emulator-runner@v2.38.0
+        with:
+          api-level: 35
+          target: google_apis
+          arch: x86_64
+          disable-animations: true
+          emulator-boot-timeout: 300
+          ram-size: 2048M
+          heap-size: 512M
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -no-snapshot -camera-back none
+          script: |
+            adb install -r app/build/outputs/apk/foss/release/*x86_64*.apk
+            adb shell input keyevent KEYCODE_WAKEUP
+            adb shell wm dismiss-keyguard
+            adb shell input keyevent 82
+            adb logcat -c
+            timeout 60s adb shell am start -W -n com.iqonli.ezmaze/.MazeActivity
+            sleep 5
+            adb shell pidof com.iqonli.ezmaze || (adb logcat -d -s AndroidRuntime && exit 1)
+            timeout 90s adb shell uiautomator dump /sdcard/ezmaze-window.xml
+            adb shell dumpsys window | grep -E 'mCurrentFocus|mFocusedApp' || true
+            adb shell cat /sdcard/ezmaze-window.xml
+            timeout 90s adb exec-out screencap -p > "$RUNNER_TEMP/ezmaze-startup.png"
+            adb shell cat /sdcard/ezmaze-window.xml | grep 'ezMaze'
+            timeout 8m bash ./gradlew -Dorg.gradle.jvmargs=-Xmx4g -Pkotlin.compiler.execution.strategy=in-process --no-daemon :core:data:connectedFossDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.t8rin.imagetoolbox.core.data.saving.SvgSavingInstrumentedTest,com.t8rin.imagetoolbox.core.data.image.StandaloneImageScalerTest --stacktrace
+            timeout 5m bash ./gradlew -Dorg.gradle.jvmargs=-Xmx4g -Pkotlin.compiler.execution.strategy=in-process --no-daemon :feature:maze-generation:connectedFossDebugAndroidTest --stacktrace
+
+      - name: Upload Android verification results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: ezMaze-android-verification
+          path: |
+            ${{ runner.temp }}/ezmaze-startup.png
+            core/data/build/outputs/androidTest-results/**
+            feature/maze-generation/build/outputs/androidTest-results/**
+          if-no-files-found: warn
 
       - name: Delete FOSS APKs
         run: rm -rf app/build/outputs/apk/foss

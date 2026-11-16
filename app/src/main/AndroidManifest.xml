@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="28"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-    <application android:name="com.iqonli.ezmaze.EzMazeApplication" android:label="@string/app_launcher_name" android:icon="@mipmap/ic_launcher" android:roundIcon="@mipmap/ic_launcher" android:supportsRtl="true" android:allowBackup="true" android:theme="@style/AppTheme">
-        <activity android:name="com.iqonli.ezmaze.MazeActivity" android:exported="true" android:theme="@style/LauncherTheme">
+    <application android:name="com.iqonli.ezmaze.EzMazeApplication" android:label="@string/app_launcher_name" android:icon="@mipmap/ic_launcher" android:roundIcon="@mipmap/ic_launcher" android:supportsRtl="true" android:allowBackup="true" android:largeHeap="true" android:hardwareAccelerated="true" android:enableOnBackInvokedCallback="true" android:theme="@style/AppTheme">
+        <activity android:name="com.iqonli.ezmaze.MazeActivity" android:exported="true" android:launchMode="singleTop" android:theme="@style/LauncherTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>

@@ -202,7 +202,23 @@ internal class AndroidImageScaler @Inject constructor(
             imageScaleMode = imageScaleMode
         )
 
-        val blurredBitmap: Bitmap? = null
+        val radius = (blurRadius.toFloat() / 1000 * max(targetWidth, targetHeight))
+            .toInt().coerceAtLeast(1)
+        val blurredBitmap: Bitmap? = Aire.stackBlur(
+            bitmap = drawImage.let { bitmap ->
+                val xScale: Float = targetWidth.toFloat() / originalWidth
+                val yScale: Float = targetHeight.toFloat() / originalHeight
+                val scale = xScale.coerceAtLeast(yScale)
+                createScaledBitmap(
+                    image = bitmap,
+                    width = (scale * originalWidth).toInt(),
+                    height = (scale * originalHeight).toInt(),
+                    imageScaleMode = imageScaleMode
+                )
+            },
+            verticalRadius = radius,
+            horizontalRadius = radius
+        )
 
         createBitmap(targetWidth, targetHeight, drawImage.safeConfig).apply { setHasAlpha(true) }
             .applyCanvas {
@@ -271,8 +287,26 @@ internal class AndroidImageScaler @Inject constructor(
             imageScaleMode = imageScaleMode
         )
 
-        // ezMaze does not expose the editor's blurred canvas resize mode.
-        val blurredBitmap: Bitmap? = null
+        val blurredBitmap = if (canvasColor == null) {
+            val radius = (blurRadius.toFloat() / 1000 * max(targetWidth, targetHeight))
+                .toInt().coerceAtLeast(1)
+            // Same native backend as the original NativeStackBlur filter, without the editor registry.
+            Aire.stackBlur(
+                bitmap = drawImage.let { bitmap ->
+                    val xScale: Float = targetWidth.toFloat() / originalWidth
+                    val yScale: Float = targetHeight.toFloat() / originalHeight
+                    val scale = xScale.coerceAtLeast(yScale)
+                    createScaledBitmap(
+                        image = bitmap,
+                        width = (scale * originalWidth).toInt(),
+                        height = (scale * originalHeight).toInt(),
+                        imageScaleMode = imageScaleMode
+                    )
+                },
+                verticalRadius = radius,
+                horizontalRadius = radius
+            )
+        } else null
 
         createBitmap(targetWidth, targetHeight, drawImage.safeConfig).apply { setHasAlpha(true) }
             .applyCanvas {
