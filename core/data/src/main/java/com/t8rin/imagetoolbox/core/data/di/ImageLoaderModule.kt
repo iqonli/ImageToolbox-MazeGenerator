@@ -31,6 +31,10 @@ import coil3.request.allowHardware
 import coil3.request.maxBitmapSize
 import coil3.size.Size
 import coil3.util.Logger
+import com.t8rin.imagetoolbox.core.data.coil.AnimatedPngDecoderFactory
+import com.t8rin.imagetoolbox.core.data.coil.AnimatedJxlDecoder
+import com.t8rin.imagetoolbox.core.data.coil.HeifDecoder
+import com.t8rin.imagetoolbox.core.data.coil.SvgDecoderCompat
 import com.t8rin.imagetoolbox.core.data.coil.CoilLogger
 import com.t8rin.imagetoolbox.core.domain.coroutines.DispatchersHolder
 import dagger.Module
@@ -81,5 +85,10 @@ internal object ImageLoaderModule {
     fun provideCoilLogger(): Logger = CoilLogger()
 
     @Provides @Singleton
-    fun provideComponentRegistry(): ComponentRegistry = ComponentRegistry.Builder().build()
+    fun provideComponentRegistry(): ComponentRegistry = ComponentRegistry.Builder()
+        .add(AnimatedPngDecoderFactory)
+        .add(SvgDecoderCompat.Factory())
+        .add(HeifDecoder.Factory())
+        .add(AnimatedJxlDecoder.Factory())
+        .build()
 }

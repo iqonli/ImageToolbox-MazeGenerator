@@ -25,6 +25,7 @@ android.namespace = "com.t8rin.imagetoolbox.core.data"
 dependencies {
     api(libs.coil)
 
+    implementation(libs.toolbox.apng)
     implementation(libs.coilGif)
     implementation(libs.coilSvg)
     implementation(libs.coil.resvg)

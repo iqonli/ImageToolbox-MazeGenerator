@@ -15,15 +15,20 @@
  * along with this program.  If not, see <http://www.apache.org/licenses/LICENSE-2.0>.
  */
 
-package com.t8rin.imagetoolbox.core.domain.model
+package com.t8rin.imagetoolbox.core.data.saving
 
-sealed interface ExtraDataType {
-    data object Gif : ExtraDataType
-    data object Pdf : ExtraDataType
-    data object File : ExtraDataType
-    data object Audio : ExtraDataType
+import com.t8rin.imagetoolbox.core.domain.saving.RandomStringGenerator
+import java.security.SecureRandom
+import javax.inject.Inject
 
-    data class Backup(val uri: String) : ExtraDataType
-    data class Template(val uri: String) : ExtraDataType
-    data class Text(val text: String) : ExtraDataType
+/** The original filename generator, without the unrelated cipher feature dependency. */
+internal class AndroidRandomStringGenerator @Inject constructor() : RandomStringGenerator {
+    override fun generate(length: Int): String {
+        val random = SecureRandom()
+        return buildString { repeat(length) { append(CHARS[random.nextInt(CHARS.length)]) } }
+    }
+
+    private companion object {
+        const val CHARS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+    }
 }

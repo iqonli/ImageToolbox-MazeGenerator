@@ -271,33 +271,8 @@ internal class AndroidImageScaler @Inject constructor(
             imageScaleMode = imageScaleMode
         )
 
-        val blurredBitmap = if (canvasColor == null) {
-            imageTransformer.transform(
-                image = drawImage.let { bitmap ->
-                    val xScale: Float = targetWidth.toFloat() / originalWidth
-                    val yScale: Float = targetHeight.toFloat() / originalHeight
-                    val scale = xScale.coerceAtLeast(yScale)
-                    createScaledBitmap(
-                        image = bitmap,
-                        width = (scale * originalWidth).toInt(),
-                        height = (scale * originalHeight).toInt(),
-                        imageScaleMode = imageScaleMode
-                    )
-                },
-                transformations = listOf(
-                    filterProvider.filterToTransformation(
-                        createFilter<Filter.NativeStackBlur.Value, Filter.NativeStackBlur>(
-                            FilterValues.nativeStackBlur(
-                                blurRadius.toFloat() / 1000 * max(
-                                    targetWidth,
-                                    targetHeight
-                                )
-                            )
-                        )
-                    )
-                )
-            )
-        } else null
+        // ezMaze does not expose the editor's blurred canvas resize mode.
+        val blurredBitmap: Bitmap? = null
 
         createBitmap(targetWidth, targetHeight, drawImage.safeConfig).apply { setHasAlpha(true) }
             .applyCanvas {

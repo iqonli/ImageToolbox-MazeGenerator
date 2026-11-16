@@ -20,5 +20,3 @@ package com.t8rin.imagetoolbox.core.domain
 const val GLOBAL_STORAGE_NAME = "ezmaze"
 
 const val BACKUP_FILE_EXT = "imtbx_backup"
-
-const val PDF = "pdf/"

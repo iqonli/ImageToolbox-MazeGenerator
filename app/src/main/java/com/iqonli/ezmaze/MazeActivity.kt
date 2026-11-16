@@ -1,6 +1,7 @@
 /*
- * ImageToolbox is an image editor for android
- * Copyright (c) 2026 T8RIN (Malik Mukhametzyanov)
+ * ezMaze is an independent maze generator based on Image Toolbox
+ * Copyright (c) 2026 IQ Online Studio
+ * Based on Image Toolbox, Copyright (c) 2024-2026 T8RIN (Malik Mukhametzyanov)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.

@@ -54,6 +54,7 @@ junit = "4.13.2"
 coilResvg = "1.1.2"
 runner = "1.7.0"
 [libraries]
+toolbox-apng = { module = "com.github.T8RIN.ImageToolboxLibs:apng", version.ref = "imageToolboxLibs" }
 androidSvg = { module = "com.caverock:androidsvg-aar", version = "1.4" }
 coil-resvg = { module = "com.hashsequence:coil-resvg", version.ref = "coilResvg" }
 junit = { module = "junit:junit", version.ref = "junit" }

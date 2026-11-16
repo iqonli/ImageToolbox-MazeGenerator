@@ -20,6 +20,7 @@ package com.t8rin.imagetoolbox.core.data.di
 import com.t8rin.imagetoolbox.core.data.saving.AndroidFileController
 import com.t8rin.imagetoolbox.core.data.saving.AndroidFilenameCreator
 import com.t8rin.imagetoolbox.core.data.saving.AndroidKeepAliveService
+import com.t8rin.imagetoolbox.core.data.saving.AndroidRandomStringGenerator
 import com.t8rin.imagetoolbox.core.data.saving.OriginalFileDeletionHelper
 import com.t8rin.imagetoolbox.core.domain.image.MetadataProvider
 import com.t8rin.imagetoolbox.core.domain.saving.FileController
@@ -27,6 +28,7 @@ import com.t8rin.imagetoolbox.core.domain.saving.FileController.Companion.toMeta
 import com.t8rin.imagetoolbox.core.domain.saving.FileControllerEventEmitter
 import com.t8rin.imagetoolbox.core.domain.saving.FilenameCreator
 import com.t8rin.imagetoolbox.core.domain.saving.KeepAliveService
+import com.t8rin.imagetoolbox.core.domain.saving.RandomStringGenerator
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -38,35 +40,25 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 internal interface SavingModule {
 
-    @Singleton
-    @Binds
-    fun provideFileController(
-        impl: AndroidFileController
-    ): FileController
+    @Singleton @Binds fun provideFileController(impl: AndroidFileController): FileController
 
     @Binds
     fun provideFileControllerEventEmitter(
         impl: OriginalFileDeletionHelper
     ): FileControllerEventEmitter
 
-    @Singleton
-    @Binds
-    fun filenameCreator(
-        impl: AndroidFilenameCreator
-    ): FilenameCreator
+    @Singleton @Binds fun filenameCreator(impl: AndroidFilenameCreator): FilenameCreator
 
-    @Singleton
+    @Singleton @Binds fun service(impl: AndroidKeepAliveService): KeepAliveService
+
     @Binds
-    fun service(
-        impl: AndroidKeepAliveService
-    ): KeepAliveService
+    @Singleton
+    fun randomStringGenerator(impl: AndroidRandomStringGenerator): RandomStringGenerator
 
     companion object {
         @Singleton
         @Provides
-        fun provideMetadata(
-            impl: AndroidFileController
-        ): MetadataProvider = impl.toMetadataProvider()
+        fun provideMetadata(impl: AndroidFileController): MetadataProvider =
+            impl.toMetadataProvider()
     }
-
 }
