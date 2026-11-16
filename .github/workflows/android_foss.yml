@@ -114,13 +114,18 @@ jobs:
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -no-snapshot -camera-back none
           script: |
             adb install -r app/build/outputs/apk/foss/release/*x86_64*.apk
+            adb shell input keyevent KEYCODE_WAKEUP
+            adb shell wm dismiss-keyguard
+            adb shell input keyevent 82
             adb logcat -c
             adb shell am start -W -n com.iqonli.ezmaze/.MazeActivity
             sleep 5
             adb shell pidof com.iqonli.ezmaze || (adb logcat -d -s AndroidRuntime && exit 1)
             adb shell uiautomator dump /sdcard/ezmaze-window.xml
-            adb shell cat /sdcard/ezmaze-window.xml | grep 'ezMaze'
+            adb shell dumpsys window | grep -E 'mCurrentFocus|mFocusedApp' || true
+            adb shell cat /sdcard/ezmaze-window.xml
             adb exec-out screencap -p > "$RUNNER_TEMP/ezmaze-startup.png"
+            adb shell cat /sdcard/ezmaze-window.xml | grep 'ezMaze'
             bash ./gradlew :core:data:connectedFossDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.t8rin.imagetoolbox.core.data.saving.SvgSavingInstrumentedTest --stacktrace
             bash ./gradlew :feature:maze-generation:connectedFossDebugAndroidTest --stacktrace
 

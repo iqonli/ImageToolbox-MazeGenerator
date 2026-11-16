@@ -16,18 +16,27 @@
  */
 
 package com.t8rin.imagetoolbox.core.data.di
+
 import com.t8rin.imagetoolbox.core.data.settings.AndroidSettingsManager
+import com.t8rin.imagetoolbox.core.settings.domain.SettingsInteractor
 import com.t8rin.imagetoolbox.core.settings.domain.SettingsManager
 import com.t8rin.imagetoolbox.core.settings.domain.SettingsProvider
-import com.t8rin.imagetoolbox.core.settings.domain.SettingsInteractor
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
-@Module @InstallIn(SingletonComponent::class)
+
+@Module
+@InstallIn(SingletonComponent::class)
 internal interface SettingsModule {
- @Binds @Singleton fun manager(impl: AndroidSettingsManager): SettingsManager
- @Binds fun provider(impl: SettingsManager): SettingsProvider
- @Binds fun interactor(impl: SettingsManager): SettingsInteractor
+    @Binds
+    @Singleton
+    fun manager(impl: AndroidSettingsManager): SettingsManager
+
+    @Binds
+    fun provider(impl: SettingsManager): SettingsProvider
+
+    @Binds
+    fun interactor(impl: SettingsManager): SettingsInteractor
 }

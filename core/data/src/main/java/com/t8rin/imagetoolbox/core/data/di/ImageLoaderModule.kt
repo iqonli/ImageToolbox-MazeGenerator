@@ -31,11 +31,11 @@ import coil3.request.allowHardware
 import coil3.request.maxBitmapSize
 import coil3.size.Size
 import coil3.util.Logger
-import com.t8rin.imagetoolbox.core.data.coil.AnimatedPngDecoderFactory
 import com.t8rin.imagetoolbox.core.data.coil.AnimatedJxlDecoder
+import com.t8rin.imagetoolbox.core.data.coil.AnimatedPngDecoderFactory
+import com.t8rin.imagetoolbox.core.data.coil.CoilLogger
 import com.t8rin.imagetoolbox.core.data.coil.HeifDecoder
 import com.t8rin.imagetoolbox.core.data.coil.SvgDecoderCompat
-import com.t8rin.imagetoolbox.core.data.coil.CoilLogger
 import com.t8rin.imagetoolbox.core.domain.coroutines.DispatchersHolder
 import dagger.Module
 import dagger.Provides
@@ -56,39 +56,37 @@ internal object ImageLoaderModule {
         @ApplicationContext context: Context,
         logger: Logger?,
         componentRegistry: ComponentRegistry,
-        dispatchersHolder: DispatchersHolder
-    ): ImageLoader = context.imageLoader.newBuilder()
-        .components(componentRegistry)
-        .coroutineContext(dispatchersHolder.defaultDispatcher)
-        .decoderCoroutineContext(dispatchersHolder.decodingDispatcher)
-        .fetcherCoroutineContext(dispatchersHolder.ioDispatcher)
-        .allowHardware(false)
-        .maxBitmapSize(Size.ORIGINAL)
-        .diskCache {
-            DiskCache.Builder()
-                .directory(File(context.cacheDir, "coil").apply(File::mkdirs))
-                .maxSizePercent(0.2)
-                .cleanupCoroutineContext(dispatchersHolder.ioDispatcher)
-                .build()
-        }
-        .memoryCache {
-            MemoryCache.Builder()
-                .maxSizePercent(context, 0.3)
-                .build()
-        }
-        .logger(logger)
-        .build()
-        .also(SingletonImageLoader::setUnsafe)
+        dispatchersHolder: DispatchersHolder,
+    ): ImageLoader =
+        context.imageLoader
+            .newBuilder()
+            .components(componentRegistry)
+            .coroutineContext(dispatchersHolder.defaultDispatcher)
+            .decoderCoroutineContext(dispatchersHolder.decodingDispatcher)
+            .fetcherCoroutineContext(dispatchersHolder.ioDispatcher)
+            .allowHardware(false)
+            .maxBitmapSize(Size.ORIGINAL)
+            .diskCache {
+                DiskCache.Builder()
+                    .directory(File(context.cacheDir, "coil").apply(File::mkdirs))
+                    .maxSizePercent(0.2)
+                    .cleanupCoroutineContext(dispatchersHolder.ioDispatcher)
+                    .build()
+            }
+            .memoryCache { MemoryCache.Builder().maxSizePercent(context, 0.3).build() }
+            .logger(logger)
+            .build()
+            .also(SingletonImageLoader::setUnsafe)
+
+    @Provides @Singleton fun provideCoilLogger(): Logger = CoilLogger()
 
     @Provides
     @Singleton
-    fun provideCoilLogger(): Logger = CoilLogger()
-
-    @Provides @Singleton
-    fun provideComponentRegistry(): ComponentRegistry = ComponentRegistry.Builder()
-        .add(AnimatedPngDecoderFactory)
-        .add(SvgDecoderCompat.Factory())
-        .add(HeifDecoder.Factory())
-        .add(AnimatedJxlDecoder.Factory())
-        .build()
+    fun provideComponentRegistry(): ComponentRegistry =
+        ComponentRegistry.Builder()
+            .add(AnimatedPngDecoderFactory)
+            .add(SvgDecoderCompat.Factory())
+            .add(HeifDecoder.Factory())
+            .add(AnimatedJxlDecoder.Factory())
+            .build()
 }

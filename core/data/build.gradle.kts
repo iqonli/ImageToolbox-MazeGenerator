@@ -55,7 +55,6 @@ dependencies {
     implementation(libs.toolbox.qoiCoder)
     implementation(libs.toolbox.jp2decoder)
 
-    implementation(libs.trickle)
 
     implementation(projects.core.domain)
     implementation(projects.core.resources)

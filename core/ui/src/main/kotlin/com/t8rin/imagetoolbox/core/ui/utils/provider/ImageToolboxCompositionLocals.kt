@@ -16,28 +16,38 @@
  */
 
 package com.t8rin.imagetoolbox.core.ui.utils.provider
+
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalHapticFeedback
 import com.t8rin.imagetoolbox.core.settings.presentation.model.UiSettingsState
-import com.t8rin.imagetoolbox.core.settings.presentation.provider.LocalSettingsState
 import com.t8rin.imagetoolbox.core.settings.presentation.provider.LocalEditPresetsController
+import com.t8rin.imagetoolbox.core.settings.presentation.provider.LocalSettingsState
 import com.t8rin.imagetoolbox.core.settings.presentation.provider.rememberEditPresetsController
 import com.t8rin.imagetoolbox.core.ui.theme.ImageToolboxThemeSurface
 import com.t8rin.imagetoolbox.core.ui.utils.confetti.ConfettiHost
 import com.t8rin.imagetoolbox.core.ui.widget.enhanced.rememberEnhancedHapticFeedback
 import com.t8rin.imagetoolbox.core.ui.widget.other.ToastHost
+
 @Composable
-fun ImageToolboxCompositionLocals(settingsState: UiSettingsState, content: @Composable BoxScope.() -> Unit) {
- CompositionLocalProvider(
-  LocalSettingsState provides settingsState,
-  LocalEditPresetsController provides rememberEditPresetsController(),
-  LocalHapticFeedback provides rememberEnhancedHapticFeedback(settingsState.hapticsStrength),
-  LocalScreenSize provides rememberScreenSize()
- ) {
-  ImageToolboxThemeSurface { content(); ConfettiHost(); ToastHost() }
- }
+fun ImageToolboxCompositionLocals(
+    settingsState: UiSettingsState,
+    content: @Composable BoxScope.() -> Unit,
+) {
+    CompositionLocalProvider(
+        LocalSettingsState provides settingsState,
+        LocalEditPresetsController provides rememberEditPresetsController(),
+        LocalHapticFeedback provides rememberEnhancedHapticFeedback(settingsState.hapticsStrength),
+        LocalScreenSize provides rememberScreenSize(),
+    ) {
+        ImageToolboxThemeSurface {
+            content()
+            ConfettiHost()
+            ToastHost()
+        }
+    }
 }
+
 @Composable fun currentScreenTwoToneIcon(default: ImageVector): ImageVector = default

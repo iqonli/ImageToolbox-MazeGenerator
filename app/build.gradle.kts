@@ -32,6 +32,7 @@ android {
 
     defaultConfig {
         vectorDrawables.useSupportLibrary = true
+        resValue("string", "app_name", "ezMaze")
 
         // Independent application identity; provider authorities follow this ID.
         applicationId = "com.iqonli.ezmaze"
@@ -46,7 +47,10 @@ android {
         }
     }
 
-    androidResources { generateLocaleConfig = true }
+    androidResources {
+        generateLocaleConfig = true
+        localeFilters += listOf("en", "zh-rCN", "zh-rTW")
+    }
 
     flavorDimensions += "app"
 
