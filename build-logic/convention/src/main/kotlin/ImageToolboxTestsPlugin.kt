@@ -47,19 +47,6 @@ class ImageToolboxTestsPlugin : Plugin<Project> {
                         add("testFixturesImplementation", libs.dagger.hilt.android)
                         add("testFixturesImplementation", libs.toolbox.exif)
                     }
-
-                    ":feature:ai-tools", ":feature:media-picker" -> {
-                        add("androidTestImplementation", testFixtures(project(":core:data")))
-                    }
-
-                    ":feature:assistant" -> add("androidTestImplementation", libs.onnx.genai)
-                    ":feature:cipher" -> add("androidTestImplementation", libs.bouncycastle.pkix)
-                    ":feature:edit-exif", ":feature:screenshot-framing" -> {
-                        add("androidTestImplementation", libs.toolbox.exif)
-                        add("androidTestImplementation", testFixtures(project(":core:data")))
-                    }
-
-                    ":feature:markup-layers" -> add("androidTestImplementation", libs.moshi)
                 }
             }
         }

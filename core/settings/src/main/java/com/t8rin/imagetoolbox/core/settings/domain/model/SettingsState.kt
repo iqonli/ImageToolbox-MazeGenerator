@@ -242,7 +242,7 @@ data class SettingsState(
                 deleteOriginalsAfterSave = false,
                 randomizeSeedAfterSave = false,
                 returnToExternalAppAfterSave = false,
-                filenamePrefix = "ResizedImage",
+                filenamePrefix = "ezMaze",
                 addSizeInFilename = false,
                 addOriginalFilename = false,
                 font = DomainFontFamily.System,
@@ -365,5 +365,4 @@ data class SettingsState(
             )
         }
     }
-
 }

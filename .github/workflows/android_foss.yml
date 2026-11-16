@@ -41,6 +41,24 @@ jobs:
       - name: Build FOSS APKs
         run: bash ./gradlew :feature:maze-generation:testFossDebugUnitTest :app:assembleFossRelease --stacktrace
 
+      - name: Record runtime dependencies
+        run: bash ./gradlew :app:dependencies --configuration fossReleaseRuntimeClasspath > "$RUNNER_TEMP/ezmaze-dependencies.txt"
+
+      - name: Upload maze test results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: ezMaze-test-results
+          path: feature/maze-generation/build/test-results/**/TEST-*.xml
+          if-no-files-found: warn
+
+      - name: Upload dependency report
+        uses: actions/upload-artifact@v7
+        with:
+          name: ezMaze-dependencies.txt
+          path: ${{ runner.temp }}/ezmaze-dependencies.txt
+          archive: false
+
       - name: Sign FOSS APKs
         run: |
           ANDROID_SDK_PATH=$ANDROID_HOME/build-tools/35.0.0/apksigner
@@ -52,6 +70,8 @@ jobs:
               --key-pass pass:${{ secrets.KEY_STORE_PASS }} \
               --out "$apk" \
               "$apk"
+            $ANDROID_SDK_PATH verify --verbose --print-certs "$apk"
+            "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$apk" | grep "package: name='com.iqonli.ezmaze'"
           done
 
       - name: Prepare individual APKs and build notes

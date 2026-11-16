@@ -33,8 +33,7 @@ android {
     defaultConfig {
         vectorDrawables.useSupportLibrary = true
 
-        //Maintained for compatibility with old version
-        // Fork builds coexist with upstream. Remove .iqonli here and in file_provider below to restore upstream IDs.
+        // Independent application identity; provider authorities follow this ID.
         applicationId = "com.iqonli.ezmaze"
 
         versionCode = libs.versions.versionCode.get().toIntOrNull()
@@ -47,9 +46,7 @@ android {
         }
     }
 
-    androidResources {
-        generateLocaleConfig = true
-    }
+    androidResources { generateLocaleConfig = true }
 
     flavorDimensions += "app"
 
@@ -59,7 +56,6 @@ android {
             versionNameSuffix = "-foss"
             extra.set("gmsEnabled", false)
         }
-
     }
 
     buildTypes {
@@ -73,12 +69,11 @@ android {
             isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                "proguard-rules.pro",
             )
             resValue("string", "app_launcher_name", "ezMaze")
             resValue("string", "file_provider", "com.iqonli.ezmaze.fileprovider")
         }
-
     }
 
     splits {
@@ -102,9 +97,7 @@ android {
         }
     }
 
-    lint {
-        disable += "Instantiatable"
-    }
+    lint { disable += "Instantiatable" }
 
     packaging {
         jniLibs {
@@ -124,14 +117,10 @@ android {
         }
     }
 
-    buildFeatures {
-        resValues = true
-    }
+    buildFeatures { resValues = true }
 }
 
-base {
-    archivesName = "ezMaze-${android.defaultConfig.versionName}"
-}
+base { archivesName = "ezMaze-${android.defaultConfig.versionName}" }
 
 dependencies {
     implementation(projects.feature.mazeGeneration)
@@ -142,28 +131,35 @@ androidComponents {
     onVariants(selector().withBuildType("release")) { variant ->
         variant.packaging.jniLibs.keepDebugSymbols.set(emptySet())
         val buildToolsVersion = android.buildToolsVersion
-        val executable = if (System.getProperty("os.name").startsWith("Windows")) {
-            "zipalign.exe"
-        } else {
-            "zipalign"
-        }
+        val executable =
+            if (System.getProperty("os.name").startsWith("Windows")) {
+                "zipalign.exe"
+            } else {
+                "zipalign"
+            }
 
-        val optimizeApks = tasks.register<OptimizeReleaseApksTask>(
-            "optimize${variant.name.replaceFirstChar(Char::uppercase)}Apks"
-        ) {
-            description = "Compresses and aligns unsigned ${variant.name} APKs before signing."
-            zipalign.set(sdkComponents.sdkDirectory.map { sdk ->
-                sdk.file("build-tools/$buildToolsVersion/$executable")
-            })
-            outputDirectory.set(layout.buildDirectory.dir("outputs/apk/${variant.flavorName}/release"))
-        }
-        val request = variant.artifacts.use(optimizeApks)
-            .wiredWithDirectories(
-                OptimizeReleaseApksTask::inputDirectory,
-                OptimizeReleaseApksTask::outputDirectory
-            )
-            .toTransformMany(SingleArtifact.APK)
+        val optimizeApks =
+            tasks.register<OptimizeReleaseApksTask>(
+                "optimize${variant.name.replaceFirstChar(Char::uppercase)}Apks"
+            ) {
+                description = "Compresses and aligns unsigned ${variant.name} APKs before signing."
+                zipalign.set(
+                    sdkComponents.sdkDirectory.map { sdk ->
+                        sdk.file("build-tools/$buildToolsVersion/$executable")
+                    }
+                )
+                outputDirectory.set(
+                    layout.buildDirectory.dir("outputs/apk/${variant.flavorName}/release")
+                )
+            }
+        val request =
+            variant.artifacts
+                .use(optimizeApks)
+                .wiredWithDirectories(
+                    OptimizeReleaseApksTask::inputDirectory,
+                    OptimizeReleaseApksTask::outputDirectory,
+                )
+                .toTransformMany(SingleArtifact.APK)
         optimizeApks.configure { transformationRequest.set(request) }
     }
-
 }
