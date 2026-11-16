@@ -13,6 +13,7 @@ import com.t8rin.imagetoolbox.core.domain.coroutines.DispatchersHolder
 import com.t8rin.imagetoolbox.core.domain.image.model.ImageInfo
 import com.t8rin.imagetoolbox.core.domain.model.MimeType
 import com.t8rin.imagetoolbox.core.domain.saving.RandomStringGenerator
+import com.t8rin.imagetoolbox.core.domain.saving.io.use
 import com.t8rin.imagetoolbox.core.domain.saving.model.FileSaveTarget
 import com.t8rin.imagetoolbox.core.domain.saving.model.ImageSaveTarget
 import com.t8rin.imagetoolbox.core.domain.saving.verifySavedFile

@@ -21,16 +21,6 @@ jobs:
         with:
           swap-size-gb: 10
 
-      - name: Stop superseded verification runs
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          for previous in $(gh run list --repo "$GITHUB_REPOSITORY" --workflow android_foss.yml --branch "$GITHUB_REF_NAME" --status in_progress --json databaseId --jq '.[].databaseId'); do
-            if [ "$previous" -lt "$GITHUB_RUN_ID" ]; then
-              gh run cancel "$previous" --repo "$GITHUB_REPOSITORY" || echo "Could not cancel superseded run $previous with the existing token permissions"
-            fi
-          done
-
       - uses: actions/checkout@v7
 
       - name: set up JDK 21
@@ -173,6 +163,19 @@ jobs:
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
 
+      - name: Locate Android SDK
+        id: sdk-location
+        run: echo "root=$ANDROID_HOME" >> "$GITHUB_OUTPUT"
+
+      - name: Restore Android emulator SDK
+        id: emulator-sdk-cache
+        uses: actions/cache/restore@v6.1.0
+        with:
+          key: ezmaze-android35-google-apis-x86_64-v1
+          path: |
+            ${{ steps.sdk-location.outputs.root }}/emulator
+            ${{ steps.sdk-location.outputs.root }}/system-images/android-35/google_apis/x86_64
+
       - name: Verify release startup and SVG saving on Android
         timeout-minutes: 22
         uses: reactivecircus/android-emulator-runner@v2.38.0
@@ -201,6 +204,23 @@ jobs:
             adb shell cat /sdcard/ezmaze-window.xml | grep 'ezMaze'
             timeout 8m bash ./gradlew -Dorg.gradle.jvmargs=-Xmx4g -Pkotlin.compiler.execution.strategy=in-process --no-daemon :core:data:connectedFossDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.t8rin.imagetoolbox.core.data.saving.SvgSavingInstrumentedTest,com.t8rin.imagetoolbox.core.data.image.StandaloneImageScalerTest --stacktrace
             timeout 5m bash ./gradlew -Dorg.gradle.jvmargs=-Xmx4g -Pkotlin.compiler.execution.strategy=in-process --no-daemon :feature:maze-generation:connectedFossDebugAndroidTest --stacktrace
+
+      - name: Check installed emulator SDK
+        if: always()
+        id: sdk-ready
+        run: |
+          if [ -x "$ANDROID_HOME/emulator/emulator" ] && [ -f "$ANDROID_HOME/system-images/android-35/google_apis/x86_64/package.xml" ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Save Android emulator SDK
+        if: always() && steps.sdk-ready.outputs.ready == 'true' && steps.emulator-sdk-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v6.1.0
+        with:
+          key: ezmaze-android35-google-apis-x86_64-v1
+          path: |
+            ${{ steps.sdk-location.outputs.root }}/emulator
+            ${{ steps.sdk-location.outputs.root }}/system-images/android-35/google_apis/x86_64
 
       - name: Upload Android verification results
         if: always()
